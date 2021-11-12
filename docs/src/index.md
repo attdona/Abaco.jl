@@ -21,7 +21,7 @@ A named math expression:
     myformula = x + y
 ```
 
-As soon as all inputs variables, `x` and `y`,  are collected the formula `myformula` is evaluated and the result available to the [onresult](#Abaco.abaco_init-Tuple{Any}) callback.
+As soon as all inputs variables are collected, in this case `x` and `y`, formula `myformula` is evaluated and [onresult](#Abaco.abaco_init-Tuple{Any}) callback is triggered.
 
 A formula is computable if all the independents variables belong to the same [time window](#time-window).
 
@@ -33,16 +33,16 @@ It is up to you to choose the acronym for `sn` that best fits the context: senso
 
 ### time window
 
-A time window includes the all the timestamps in the interval `rop`:
+A time window includes all the timestamps in the interval `rop`:
 
-    rop = { t ∈ N | START_INTERVAL <= t < END_TIME }
+```rop = { t ∈ N | START_INTERVAL <= t < END_TIME }```
 
 Timestamps are integer values with second granularity. 
 
 In a periodic data collection system the time window `rop`
 identifies a *Report Output Period*.
 
-For exammple suppose that a data collection system uses a 15 minutes rop interval:
+For example suppose that a data collection system uses a 15 minutes rop interval:
 in this case an hour is divided into 4 rops and from ten to eleven of some (omitted) day you have:
 
 * rop1 =  { t ∈ [10:00:00, 10:15:00) }
@@ -67,11 +67,13 @@ This is the minimal background theory, the below example should help to clarify 
 ## Getting Started
 
 Installation:
+
 ```julia
 julia> using Pkg; Pkg.add("Abaco")    
 ```
 
 Usage:
+
 ```julia
 using Abaco
 
@@ -145,7 +147,6 @@ end
 ```
 
 ## API
-
 
 ```@index
 ```

@@ -10,9 +10,12 @@ Abaco aims to target the case where a number of IoT sensor, network devices or o
 
 In a real world scenario values are coming asynchronously, delayed and out of orders. Abaco may manage values referring to different times.
 
+![timeline](https://github.com/attdona/Abaco.jl/blob/main/docs/images/timeline.png?raw=true)
+
 ## Getting Started
 
 Installation:
+
 ```julia
 julia> using Pkg; Pkg.add("Abaco")    
 ```

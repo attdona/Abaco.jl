@@ -36,7 +36,7 @@ defined as:
 
     ROP = { t ∈ [start_time, start_time+width) }
 
-It is customary to use the `start_time` to indicate a `rop`: the rop of ten 'oclock
+It is customary to use the `start_time` to indicate a `rop`: the rop of ten o'clock
 is the time interval `[10:00, 10:15)`.
 """
 function rop(ts::Int64, width::Int64=900)
