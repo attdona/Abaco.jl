@@ -31,34 +31,33 @@ The identifier of the element sending the input variables.
 
 It is up to you to choose the acronym for `sn` that best fits the context: sensor name, scope name or short name if it were a unique string extracted for a long distinguish name `dn` string.
 
-### time window
+### time span
 
-A time window includes all the timestamps in the interval `rop`:
+A time span includes all the timestamps in a time interval:
 
-```rop = { t ∈ N | START_INTERVAL <= t < END_TIME }```
+```span = { t ∈ N | START_INTERVAL <= t < END_TIME }```
 
-Timestamps are integer values with second granularity. 
+Timestamps `t` are integer values with second granularity. 
 
-In a periodic data collection system the time window `rop`
-identifies a *Report Output Period*.
+For example suppose that a data collection system uses a 15 minutes span interval:
+in this case an hour is divided into 4 intervals and from ten to eleven of some (omitted) day you have:
 
-For example suppose that a data collection system uses a 15 minutes rop interval:
-in this case an hour is divided into 4 rops and from ten to eleven of some (omitted) day you have:
+* span1 =  { t ∈ [10:00:00, 10:15:00) }
+* span2 =  { t ∈ [10:15:00, 10:30:00) }
+* span3 =  { t ∈ [10:30:00, 10:45:00) }
+* span4 =  { t ∈ [10:45:00, 11:00:00) }
 
-* rop1 =  { t ∈ [10:00:00, 10:15:00) }
-* rop2 =  { t ∈ [10:15:00, 10:30:00) }
-* rop3 =  { t ∈ [10:30:00, 10:45:00) }
-* rop4 =  { t ∈ [10:45:00, 11:00:00) }
+By convention the span interval is identified by its START_TIME.
 
-Conventionally the rop is identified by its START_TIME: in the above example `rop1` is the ten o'clock rop.
+The formula value computed from inputs with timestamps included into the span `[START_TIME, END_TIME)` has timestamp equal to `START_TIME`.
 
-The rop interval `width` is an abaco setting, user-defined at startup.
+The `width` of the span interval is an abaco setting, user-defined at startup.
 
 ## ages
 
-The number of `ages` defines how many consecutive rops are managed.
+The number of `ages` defines how many consecutive time spans are managed.
 
-For example, for a `rop` width of 15 minutes, set `ages` to 4 if your network devices may send data with a maximum delay of an hour. A received value marked with a timestamp distant 4 or more rops from the latest rop is discarded.
+For example, for a time span of 15 minutes, set `ages` to 4 if your network devices may send data with a maximum delay of an hour. A received value marked with a timestamp distant 4 or more spans from the latest span is discarded.
 
 The number of `ages` is an abaco setting, user-defined at startup.
 
@@ -77,8 +76,8 @@ Usage:
 ```julia
 using Abaco
 
-# Initialize abaco context with a rop time_window of 60 seconds and handle
-# input values with timestamp ts up to 4 contiguous rops.
+# Initialize abaco context with a time_window of 60 seconds and handle
+# input values with timestamp ts up to 4 contiguous spans.
 abaco = abaco_init(width=60, ages=4) do ts, sn, fname, value, inputs
     @info "[$ts][$sn] function $fname=$value"
 end
@@ -119,7 +118,7 @@ add_value!(abaco, ts, device, "y", 20)
 
 # Now arrives the variable x from CE987 that make some formulas computables.
 # Note that x timestamp is 65, y timestamp is 101
-# and the formulas timestamp is 60: the START_TIME of the rop. 
+# and the formulas timestamp is 60: the START_TIME of the span. 
 ts = 101
 device = "CE987"
 add_value!(abaco, ts, device, "x", 10)
