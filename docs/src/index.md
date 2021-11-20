@@ -53,7 +53,7 @@ The formula value computed from inputs with timestamps included into the span `[
 
 The `width` of the span interval is an abaco setting, user-defined at startup.
 
-## ages
+### ages
 
 The number of `ages` defines how many consecutive time spans are managed.
 
