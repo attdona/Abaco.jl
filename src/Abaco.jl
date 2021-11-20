@@ -18,7 +18,7 @@ logging(debug = DEBUG=="0" ? [] : [Abaco])
 
 
 """
-    abaco_init(onresult; handle=nothing, width::Int=900, ages::Int=4)::Context
+    abaco_init(onresult; handle=nothing, interval::Int=900, ages::Int=4)::Context
 
 Initialize the abaco context:
 
@@ -27,7 +27,7 @@ Initialize the abaco context:
 * `handle`: user defined object. 
             If handle is defined it is the first argument of `onresult`, default to `nothing`.
 
-* `width`: the rop interval in seconds, default to 900 seconds (15 minutes).
+* `interval`: the span interval in seconds, default to 900 seconds (15 minutes).
 
 * `ages`: the number of active rops managed by the abaco, default to 4.
 
@@ -58,8 +58,8 @@ abaco = abaco_init(onresult)
 
  
 """
-function abaco_init(onresult; handle=nothing, width::Int=900, ages::Int=4)::Context
-    Context(handle, width, ages, onresult)
+function abaco_init(onresult; handle=nothing, interval::Int=900, ages::Int=4)::Context
+    Context(handle, interval, ages, onresult)
 end
 
 function oncomplete(onresult, abaco::Context)

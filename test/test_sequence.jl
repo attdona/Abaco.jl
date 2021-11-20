@@ -7,7 +7,7 @@ Abaco.loginit()
 # My time zone: Saturday, October 30, 2021 3:43:35 PM GMT+02:00 DST
 mo = "Cristallo"
 
-width = 1
+interval = 1
 ages = 4
 
 function onresult(ts, sn, name, value, inputs)
@@ -15,7 +15,7 @@ function onresult(ts, sn, name, value, inputs)
     @test 1 == 0 # onresult should not be invoked
 end
     
-abaco = abaco_init(onresult, width=width, ages=ages)
+abaco = abaco_init(onresult, interval=interval, ages=ages)
 
 add_formula!(abaco, "myformula = (x + y)")
 

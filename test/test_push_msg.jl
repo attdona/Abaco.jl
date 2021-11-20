@@ -29,9 +29,9 @@ end
 # My time zone: Saturday, October 30, 2021 3:43:35 PM GMT+02:00 DST
 ts = 1635601415
 
-width = 5
+interval = 5
 ages = 4
-abaco = abaco_init(onresult, width=width, ages=ages)
+abaco = abaco_init(onresult, interval=interval, ages=ages)
 
 sn = "Mulaz"
 

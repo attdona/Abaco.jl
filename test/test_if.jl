@@ -8,7 +8,7 @@ window = 900
 ts = 1635600600
 sn = "Civetta"
 
-abaco = abaco_init(width=window) do ts, sn, name, value, inputs 
+abaco = abaco_init(interval=window) do ts, sn, name, value, inputs 
     @info "[identity] age [$ts]: scope: [$sn] $name = $value"
     @test value == 100.0
 end

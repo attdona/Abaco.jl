@@ -8,7 +8,7 @@ window = 900
 metric_ts = 1635600600
 metric_sn = "Civetta"
 
-abaco = abaco_init(width=window) do ts, sn, name, value, inputs 
+abaco = abaco_init(interval=window) do ts, sn, name, value, inputs 
     @debug "[identity] age [$ts]: scope: [$sn] $name = $value"
     @test ts == metric_ts
     @test sn == metric_sn
@@ -94,5 +94,6 @@ oncomplete(abaco) do ts, sn, name, value, inputs
     @test value == factorial(6)
 end
 metric_ts += window
-add_formula!(abaco, "r = factorial(x+x)")
+# if a function requires an integer argument try to convert the arg value to Int
+add_formula!(abaco, "r = factorial(Int(x+x))")
 add_value!(abaco, metric_ts, metric_sn, "x", 3)

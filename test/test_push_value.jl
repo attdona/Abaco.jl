@@ -7,7 +7,7 @@ Abaco.loginit()
 metric_ts = 1635601415
 metric_sn = "Marmolada"
 
-width = 5
+interval = 5
 ages = 4
 
 values = Dict(
@@ -23,7 +23,7 @@ function onresult(ts, sn, name, value, inputs)
     @test value == 14.0
 end
     
-abaco = abaco_init(onresult, width=width, ages=ages)
+abaco = abaco_init(onresult, interval=interval, ages=ages)
 
 # add a formula that is not evaluated because variable t is not feeded
 add_formula!(abaco, "r = (x + y) / exp(t)")

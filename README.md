@@ -25,11 +25,11 @@ Minimal example:
 ```julia
 using Abaco
 
-# Initialize abaco context with a time interval large 60 seconds and handle
+# Initialize abaco context with a time span of 60 seconds and handle
 # input values with timestamp ts up to 4 (ages) contiguous time intervals.
 # When a formula is evaluated because all inputs variables are known traces
 # an info record.
-abaco = abaco_init(width=60, ages=4) do ts, sn, fname, value, inputs
+abaco = abaco_init(interval=60, ages=4) do ts, sn, fname, value, inputs
     @info "[$ts][$sn] function $fname=$value"
 end
 

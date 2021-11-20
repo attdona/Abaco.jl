@@ -62,6 +62,12 @@ function find_symbol(::Val{:call}, args, formula::Formula)
     find_symbol(Val(args[1]), args[2:end], formula)
 end
 
+function find_symbol(::Val{:.}, args, formula::Formula)
+    qn = args[2].value
+    push!(formula.inputs, "$(args[1]).$qn")
+end
+
+
 # formula definition
 function find_symbol(::Val{:(=)}, args, formula::Formula)
     # formula name

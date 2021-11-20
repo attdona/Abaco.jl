@@ -1,9 +1,10 @@
 
 mutable struct Value
     dn::String # managed object distinguished name
-    value::Number
+    value::Vector{Float64}
     recv::Float64 # time of arrival
-    Value(dn, val) = new(dn, val, time())
+    Value(dn, val::Real) = new(dn, [val], time())
+    Value(dn, val::Vector{<:Real}) = new(dn, val, time())
 end
 
 mutable struct Formula
@@ -39,6 +40,15 @@ for example for a wrong numbers of method args:
 """
 struct EvalError <: AbacoError
     formula::String
+    cause::Exception
+end
+
+"""
+Attempt to get a value with an invalid index.
+"""
+struct ValueNotFound <: AbacoError
+    var::String
+    index::Int
 end
 
 mutable struct FormulaState
@@ -73,14 +83,14 @@ must be initialized by [`abaco_init`](@ref).
 """
 mutable struct Context
     handle::Any
-    width::Int64
+    interval::Int64
     ages::Int64
     formula::Dict{String, Formula} # formula name => formula
     dependents::Dict{String, Vector{String}} # independent variable => array of formula names where used
     scopes::Dict{String, Multiverse} # sn => multiverse
     oncomplete::Function
-    Context(handle, width, ages, oncomplete) = new(handle,
-                                                   width,
+    Context(handle, interval, ages, oncomplete) = new(handle,
+                                                   interval,
                                                    ages,
                                                    Dict(),
                                                    Dict(),

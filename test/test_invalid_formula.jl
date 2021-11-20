@@ -8,7 +8,7 @@ window = 900
 metric_ts = 1635600600
 metric_sn = "Civetta"
 
-abaco = abaco_init(width=window) do ts, sn, name, value, inputs 
+abaco = abaco_init(interval=window) do ts, sn, name, value, inputs 
     @info "[identity] age [$ts]: scope: [$sn] $name = $value"
     @test ts == metric_ts
     @test sn == metric_sn

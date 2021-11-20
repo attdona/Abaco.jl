@@ -68,11 +68,17 @@ function add_value!(abaco, ts::Int, sn::String, var::String, val::Real)
     poll_formulas(abaco, universe, sn, var, val)
 end
 
+function add_value!(abaco, ts::Int, sn::String, var::String, val::Vector{<:Real})
+    universe = touniverse(abaco, ts, sn)
+    universe_add(universe, sn, var, val)
+    poll_formulas(abaco, universe, sn, var, val)
+end
+
 
 function touniverse(abaco::Context, ts, sn)
-    # get the rop
-    ropts = rop(ts, abaco.width)
-    index = mvindex(ts, abaco.width, abaco.ages)
+    # get the span
+    ropts = span(ts, abaco.interval)
+    index = mvindex(ts, abaco.interval, abaco.ages)
 
     if !haskey(abaco.scopes, sn)
         abaco.scopes[sn] = Multiverse{abaco.ages}(abaco.formula, abaco.dependents)
@@ -85,7 +91,7 @@ function touniverse(abaco::Context, ts, sn)
 
         # reset the values of universe
         map!(v->begin 
-            v.value = NaN
+            v.value = []
             v
         end, values(universe.vals))
 
@@ -102,6 +108,16 @@ function touniverse(abaco::Context, ts, sn)
 end    
 
 function universe_add(universe::Universe, sn, var::String, val::Real)
+    if !haskey(universe.vals, var)
+        # first arrival of variable var
+        universe.vals[var] = Value(sn, val)
+    else
+        universe.vals[var].value = [val]
+        universe.vals[var].recv = time()
+    end
+end
+
+function universe_add(universe::Universe, sn, var::String, val::Vector{<:Real})
     if !haskey(universe.vals, var)
         # first arrival of variable var
         universe.vals[var] = Value(sn, val)
@@ -129,7 +145,7 @@ function poll_formulas(abaco, universe, sn, var, value)
         for formula_name in abaco.dependents[var]
             fstate = universe.outputs[formula_name]
             result = poll(abaco, fstate, universe.vals)
-            if !isnan(result)
+            if result !== nothing
                 if abaco.handle === nothing
                     abaco.oncomplete(universe.mark,
                                      sn,
@@ -165,8 +181,8 @@ function poll(abaco, formula_state::FormulaState, vals::Dict)
     formula = abaco.formula[formula_state.f]
     # Step 1: decide if the formula may be evaluated: all variables are collected
     for v in formula.inputs
-        if !(haskey(vals, v) && isfinite(vals[v].value))
-            return NaN
+        if !(haskey(vals, v) && !isempty(vals[v].value))
+            return nothing
         end
     end
     
@@ -176,5 +192,5 @@ function poll(abaco, formula_state::FormulaState, vals::Dict)
         result = eval(formula, vals)
         return result
     end
-    return NaN
+    return nothing
 end

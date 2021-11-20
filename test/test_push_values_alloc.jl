@@ -9,9 +9,9 @@ function onresult(ts, sn, name, value, inputs)
     @info "age [$ts]: scope: [$sn] $name = $value"
 end
 
-width = 5
+interval = 5
 ages = 4
-abaco = Abaco.init(nop, width, ages)
+abaco = Abaco.init(nop, interval, ages)
 add_formula!(abaco, "y = x1 + x2")
 
 
