@@ -18,7 +18,7 @@ logging(debug = DEBUG=="0" ? [] : [Abaco])
 
 
 """
-    abaco_init(onresult; handle=nothing, interval::Int=900, ages::Int=4)::Context
+    abaco_init(onresult; handle=nothing, interval::Int=900, ages::Int=4, emitone=true)::Context
 
 Initialize the abaco context:
 
@@ -28,8 +28,13 @@ Initialize the abaco context:
             If handle is defined it is the first argument of `onresult`, default to `nothing`.
 
 * `interval`: the span interval in seconds, default to 900 seconds (15 minutes).
+              If interval is equal to -1 there is just one infinite time span.
 
-* `ages`: the number of active rops managed by the abaco, default to 4.
+* `ages`: the number of active rops managed by the abaco. Default to 4.
+          If `interval` is equal to -1 `ages`  is not applicable because it loses meaning.
+
+* `emitone`: if `true` emits for each time span at most 1 formula value, 
+             otherwise emits a new result at every new inputs. Defaut to `true`
 
 Example 1: defining `onresult` callback that uses of an handle object.
 
@@ -58,8 +63,12 @@ abaco = abaco_init(onresult)
 
  
 """
-function abaco_init(onresult; handle=nothing, interval::Int=900, ages::Int=4)::Context
-    Context(handle, interval, ages, onresult)
+function abaco_init(onresult;
+                    handle=nothing,
+                    interval::Int=900,
+                    ages::Int=4,
+                    emitone::Bool=true)::Context
+    Context(handle, interval, ages, emitone, onresult)
 end
 
 function oncomplete(onresult, abaco::Context)

@@ -47,8 +47,8 @@ function add_values!(abaco, ts, sn, values)
     universe = touniverse(abaco, ts, sn)
     for (var, val) in values
         universe_add(universe, sn, var, val)
-        poll_formulas(abaco, universe, sn, var, val)
     end
+    poll_formulas(abaco, universe, sn, keys(values))
 end
 
 """
@@ -65,17 +65,27 @@ Adds the input variable `var` with value `val`.
 function add_value!(abaco, ts::Int, sn::String, var::String, val::Real)
     universe = touniverse(abaco, ts, sn)
     universe_add(universe, sn, var, val)
-    poll_formulas(abaco, universe, sn, var, val)
+    poll_formulas(abaco, universe, sn, var)
 end
 
 function add_value!(abaco, ts::Int, sn::String, var::String, val::Vector{<:Real})
     universe = touniverse(abaco, ts, sn)
     universe_add(universe, sn, var, val)
-    poll_formulas(abaco, universe, sn, var, val)
+    poll_formulas(abaco, universe, sn, var)
 end
 
 
 function touniverse(abaco::Context, ts, sn)
+    if abaco.interval == -1
+        if !haskey(abaco.scopes, sn)
+            abaco.scopes[sn] = Multiverse{1}(abaco.formula, abaco.dependents)
+        end
+    
+        universe =  abaco.scopes[sn].universe[1]
+        universe.mark = ts
+        return universe
+    end
+
     # get the span
     ropts = span(ts, abaco.interval)
     index = mvindex(ts, abaco.interval, abaco.ages)
@@ -140,7 +150,7 @@ end
 # 
 # Check the completion status of all formulas that depends on `var`.
 # 
-function poll_formulas(abaco, universe, sn, var, value)
+function poll_formulas(abaco, universe, sn, var::String)
     if haskey(abaco.dependents, var)
         for formula_name in abaco.dependents[var]
             fstate = universe.outputs[formula_name]
@@ -160,6 +170,30 @@ function poll_formulas(abaco, universe, sn, var, value)
                                      result,
                                      universe.vals)
                 end
+            end
+        end
+    end
+end
+
+function poll_formulas(abaco, universe, sn, vars::Base.KeySet)
+    formulas = union([haskey(abaco.dependents, var) ? abaco.dependents[var] : [] for var in vars]...)
+    for formula_name in formulas
+        fstate = universe.outputs[formula_name]
+        result = poll(abaco, fstate, universe.vals)
+        if result !== nothing
+            if abaco.handle === nothing
+                abaco.oncomplete(universe.mark,
+                                 sn,
+                                 formula_name,
+                                 result,
+                                 universe.vals)
+            else
+                abaco.oncomplete(abaco.handle,
+                                 universe.mark,
+                                 sn,
+                                 formula_name,
+                                 result,
+                                 universe.vals)
             end
         end
     end
@@ -188,7 +222,9 @@ function poll(abaco, formula_state::FormulaState, vals::Dict)
     
     # Step 2: evaluate the formula
     if !formula_state.done
-        formula_state.done = true
+        if abaco.emitone
+            formula_state.done = true
+        end
         result = eval(formula, vals)
         return result
     end

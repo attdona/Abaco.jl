@@ -85,15 +85,21 @@ mutable struct Context
     handle::Any
     interval::Int64
     ages::Int64
+    emitone::Bool
     formula::Dict{String, Formula} # formula name => formula
     dependents::Dict{String, Vector{String}} # independent variable => array of formula names where used
     scopes::Dict{String, Multiverse} # sn => multiverse
     oncomplete::Function
-    Context(handle, interval, ages, oncomplete) = new(handle,
-                                                   interval,
-                                                   ages,
-                                                   Dict(),
-                                                   Dict(),
-                                                   Dict(),
-                                                   oncomplete)
+    Context(handle,
+            interval,
+            ages,
+            emitone,
+            oncomplete) = new(handle,
+                              interval,
+                              ages,
+                              emitone,
+                              Dict(),
+                              Dict(),
+                              Dict(),
+                              oncomplete)
 end
