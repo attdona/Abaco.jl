@@ -1,0 +1,2 @@
+type;name;expression
+hub;total_footprint;sum(sensor.footprint)

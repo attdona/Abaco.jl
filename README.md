@@ -37,7 +37,7 @@ end
 outputs = ["xysum = x + y", "rsigma = x * exp(y-1)", "wsum = (x*w + z*v)"]
 
 for formula in outputs
-    add_formula!(abaco, formula)
+    add_formula(abaco, formula)
 end
 
 # Start receiving some inputs values
@@ -47,14 +47,14 @@ end
 # the device AG101 sends the x value at timestamp 0.
 ts = 0
 device = "AG101"
-add_value!(abaco, ts, device, "x", 10)
+add_value(abaco, ts, device, "x", 10)
 
 # Time flows and about 1 minute later ...
 
 # the device CE987 sends the y value at timestamp 65.
 ts = 65
 device = "CE987"
-add_value!(abaco, ts, device, "y", 10)
+add_value(abaco, ts, device, "y", 10)
 
 # Time flows and more than 1 minute later ...
 
@@ -63,7 +63,7 @@ add_value!(abaco, ts, device, "y", 10)
 # for the element AG101 at timestamp 0.
 ts = 0
 device = "AG101"
-add_value!(abaco, ts, device, "y", 20)
+add_value(abaco, ts, device, "y", 20)
 [ Info: [0][AG101] function xysum=30
 [ Info: [0][AG101] function rsigma=1.7848230096318724e9
 
@@ -74,7 +74,7 @@ add_value!(abaco, ts, device, "y", 20)
 # where formula is computable. 
 ts = 101
 device = "CE987"
-add_value!(abaco, ts, device, "x", 10)
+add_value(abaco, ts, device, "x", 10)
 [ Info: [60][CE987] function xysum=20
 [ Info: [60][CE987] function rsigma=81030.83927575384
 

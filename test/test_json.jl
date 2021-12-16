@@ -17,7 +17,7 @@ end
 abaco = abaco_init(onresult)
 
 # add a formula
-f = add_formula!(abaco, "(x + y * very_long_variable)/z")
+f = add_formula(abaco, "(x + y * very_long_variable)/z")
 
 # The values may be received one at time or in a batch
 # The only mandatory fields are sn and ts

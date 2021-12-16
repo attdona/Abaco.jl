@@ -1,37 +1,12 @@
-"""
-    add_formula!(abaco::Context, formula_def::String)
 
-Add a formula, with `formula_def` formatted as `"formula_name = expression"`,
-where expression is a mathematical expression, like `x + y*w`.
-"""
-function add_formula!(abaco::Context, formula_def::String)
-    formula = extractor(formula_def)
-    abaco.formula[formula.output] = formula
-    # update the dependents
-    for invar in formula.inputs
-        if haskey(abaco.dependents, invar)
-            push!(abaco.dependents[invar], formula.output)
-        else
-            abaco.dependents[invar] = [formula.output]
-        end
-    end
 
-    # create a formula state for each already initialized scopes
-    for scope in values(abaco.scopes)
-        for universe in values(scope.universe)
-            universe.outputs[formula.output] = FormulaState(false, formula.output)
-        end
-    end
-
-    formula
-end
 
 #
 #    extractor(formula_def::String)
 #
 # Extract the formula name and the variables from `formula_def`. 
 #
-function extractor(formula_def::String)
+function extractor(formula_def)
     try
         ast = Meta.parse(string(formula_def))
         formula::Formula = Formula(formula_def, ast)

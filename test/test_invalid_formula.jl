@@ -16,5 +16,5 @@ abaco = abaco_init(interval=window) do ts, sn, name, value, inputs
 end
 
 invalid_formula = "r = rm(\"foo.txt\")"
-@test_throws Abaco.WrongFormula(invalid_formula) add_formula!(abaco, invalid_formula)
+@test_throws Abaco.WrongFormula(invalid_formula) add_formula(abaco, invalid_formula)
 

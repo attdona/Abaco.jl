@@ -2,19 +2,22 @@ module Abaco
 
 using Dates
 
+const DEFAULT_TYPE = "glob"
+
 include("logger.jl")
 include("types.jl")
+include("context.jl")
 include("extractor.jl")
 include("formula.jl")
-include("universe.jl")
+include("poll.jl")
 include("time.jl")
 
-export abaco_init, add_formula!,
-       add_scope!, add_value!, add_values!,
-       oncomplete, nowts, Value
+export abaco_init, add_formula, add_formulas, add_element,
+       add_origin, add_value, add_values, add_values!,
+       last_value, last_point, get_values, get_collected, sum_collected,
+       setup_settings, oncomplete, nowts,
+       Context, Element, dependents, etype, span
 
-DEBUG = get(ENV, "ABACO_DEBUG", "0")
-logging(debug = DEBUG=="0" ? [] : [Abaco])
 
 
 """
@@ -65,14 +68,22 @@ abaco = abaco_init(onresult)
 """
 function abaco_init(onresult;
                     handle=nothing,
-                    interval::Int=900,
-                    ages::Int=4,
+                    interval::Int=-1,
+                    ages::Int=1,
                     emitone::Bool=true)::Context
-    Context(handle, interval, ages, emitone, onresult)
+                    DEBUG = get(ENV, "ABACO_DEBUG", "0")
+    logging(debug = DEBUG=="0" ? [] : [@__MODULE__, Main])
+
+    cfg = SnapsSetting(handle, emitone, onresult)
+    Context(interval, ages, Dict(DEFAULT_TYPE=>cfg))
 end
 
+
 function oncomplete(onresult, abaco::Context)
-    abaco.oncomplete = onresult
+    abaco.cfg[DEFAULT_TYPE].oncomplete = onresult
+end
+
+function abaco_multi()
 end
 
 function loginit()

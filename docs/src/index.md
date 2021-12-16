@@ -78,7 +78,7 @@ using Abaco
 
 # Initialize abaco context with a time_window of 60 seconds and handle
 # input values with timestamp ts up to 4 contiguous spans.
-abaco = abaco_init(width=60, ages=4) do ts, sn, fname, value, inputs
+abaco = abaco_init(interval=60, ages=4) do ts, sn, fname, value, inputs
     @info "[$ts][$sn] function $fname=$value"
 end
 
@@ -86,7 +86,7 @@ end
 outputs = ["xysum = x + y", "rsigma = x * exp(y-1)", "wsum = (x*w + z*v)"]
 
 for formula in outputs
-    add_formula!(abaco, formula)
+    add_formula(abaco, formula)
 end
 
 # Start receiving some inputs values
@@ -96,14 +96,14 @@ end
 # the device AG101 sends the x value at timestamp 0.
 ts = 0
 device = "AG101"
-add_value!(abaco, ts, device, "x", 10)
+add_value(abaco, ts, device, "x", 10)
 
 # Time flows and about 1 minute later ...
 
 # the device CE987 sends the y value at timestamp 65.
 ts = 65
 device = "CE987"
-add_value!(abaco, ts, device, "y", 10)
+add_value(abaco, ts, device, "y", 10)
 
 # Time flows and more than 1 minute later ...
 
@@ -112,7 +112,7 @@ add_value!(abaco, ts, device, "y", 10)
 # for the element AG101 at timestamp 0.
 ts = 0
 device = "AG101"
-add_value!(abaco, ts, device, "y", 20)
+add_value(abaco, ts, device, "y", 20)
 [ Info: [0][AG101] function xysum=30
 [ Info: [0][AG101] function rsigma=1.7848230096318724e9
 
@@ -121,7 +121,7 @@ add_value!(abaco, ts, device, "y", 20)
 # and the formulas timestamp is 60: the START_TIME of the span. 
 ts = 101
 device = "CE987"
-add_value!(abaco, ts, device, "x", 10)
+add_value(abaco, ts, device, "x", 10)
 [ Info: [60][CE987] function xysum=20
 [ Info: [60][CE987] function rsigma=81030.83927575384
 
@@ -134,7 +134,7 @@ For example:
 ```julia
 sock = connect(3001)
 
-abaco = abaco_init(handle=sock, width=900) do sock, ts, sn, name, value, inputs
+abaco = abaco_init(handle=sock, interval=900) do sock, ts, sn, name, value, inputs
     @info "age [$ts]: [$sn] $name = $value"
     msg = JSON3.write(Dict(
                         "sn" => sn,

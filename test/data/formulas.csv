@@ -1,0 +1,4 @@
+type;name;expression
+sensor;meanxy;(x+y)/2
+sensor;min;min(x,y)
+hub;energy;sum(sensor.x)

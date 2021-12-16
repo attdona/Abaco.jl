@@ -25,11 +25,11 @@ end
 abaco = abaco_init(onresult, interval=interval, ages=ages)
 
 # add a formula that is not evaluated because variable t is not feeded
-add_formula!(abaco, "r = (x + y) / exp(t)")
+add_formula(abaco, "r = (x + y) / exp(t)")
 
 # this gets evaluated (2 + 4 + 8 = 14)
-add_formula!(abaco, "w = x + y + z")
+add_formula(abaco, "w = x + y + z")
 
-add_values!(abaco, metric_ts, metric_sn, values)
-add_values!(abaco, metric_ts+interval*ages, metric_sn, values)
+add_values(abaco, metric_ts, metric_sn, values)
+add_values(abaco, metric_ts+interval*ages, metric_sn, values)
 

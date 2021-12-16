@@ -36,9 +36,9 @@ abaco = abaco_init(onresult, interval=interval, ages=ages)
 sn = "Mulaz"
 
 # add a formula
-add_formula!(abaco, "r = (x + y) / exp(z)")
-add_formula!(abaco, "w = (x + y) / z")
-add_formula!(abaco, "sum = x + y + z + t")
+add_formula(abaco, "r = (x + y) / exp(z)")
+add_formula(abaco, "w = (x + y) / z")
+add_formula(abaco, "sum = x + y + z + t")
 
 add_values!(abaco, Dict(
                 "sn" => sn,
@@ -64,3 +64,8 @@ add_values!(abaco, Dict(
                 "ts" => ts+2,
                 "w" => nothing,
             ))
+
+@debug "[$sn]: $(abaco.element[sn])"
+
+result = get_values(abaco, sn, "r")
+@debug "get_values(r) = $result"
