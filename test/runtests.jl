@@ -17,7 +17,7 @@ using SafeTestsets
         @time @safetestset "operators" begin include("test_operators.jl") end
         @time @safetestset "invalid_formula" begin include("test_invalid_formula.jl") end
         @time @safetestset "if" begin include("test_if.jl") end
-        @time @safetestset "multicontext" begin include("test_multicontext.jl") end
+        @time @safetestset "csv_formulas" begin include("test_csv_formulas.jl") end
         @time @safetestset "co2" begin include("test_co2.jl") end
     end
 end
