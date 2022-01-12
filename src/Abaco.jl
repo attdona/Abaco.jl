@@ -2,7 +2,7 @@ module Abaco
 
 using Dates
 
-const DEFAULT_TYPE = "glob"
+const DEFAULT_TYPE = ""
 
 include("logger.jl")
 include("types.jl")
@@ -63,8 +63,6 @@ end
 
 abaco = abaco_init(onresult)
 ```
-
- 
 """
 function abaco_init(onresult;
                     handle=nothing,
@@ -73,7 +71,7 @@ function abaco_init(onresult;
                     emitone::Bool=true)::Context
                     DEBUG = get(ENV, "ABACO_DEBUG", "0")
     logging(debug = DEBUG=="0" ? [] : [@__MODULE__, Main])
-
+    @debug "resetting abaco ..."
     cfg = SnapsSetting(handle, emitone, onresult)
     Context(interval, ages, Dict(DEFAULT_TYPE=>cfg))
 end

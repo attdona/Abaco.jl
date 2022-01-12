@@ -24,7 +24,7 @@ abaco = abaco_init(onresult, interval=-1)
 setup_settings(abaco, "sensor", oncomplete=onresult)
 setup_settings(abaco, "hub", oncomplete=onresult)
 
-add_formulas(abaco, df)
+add_formulas(abaco, df[1])
 
 city = add_element(abaco, "milano", "hub")
 

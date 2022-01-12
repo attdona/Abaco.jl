@@ -103,6 +103,17 @@ function add_values(abaco, ts, sn, values)
     trigger_formulas(abaco, snap, sn, keys(values))
 end
 
+function add_values(abaco, payload)
+    ts = payload["ts"]
+    sn = payload["sn"]
+    snap = getsnap(abaco, ts, sn)
+    vars = [var for var in keys(payload) if !(var in ["sn", "ts"])]
+    for var in vars
+        snap_add(snap, sn, var, payload[var])
+    end
+    trigger_formulas(abaco, snap, sn, vars)
+end
+
 """
     add_value(abaco, ts::Int, sn::String, var::String, val::Real)
 
@@ -180,6 +191,11 @@ etype(abaco, sn) = haskey(abaco.element, sn) ? abaco.element[sn].type : DEFAULT_
 
 snapsetting(abaco, type) = haskey(abaco.cfg, type) ? abaco.cfg[type] : abaco.cfg[DEFAULT_TYPE]
 
+"""
+    getsnap(abaco::Context, ts, sn)
+
+Returns the `sn` element snapshot relative to timestamp `ts`.
+"""
 function getsnap(abaco::Context, ts, sn)
     type = etype(abaco, sn)
     ## cfg = snapsetting(abaco, type)
@@ -189,7 +205,6 @@ function getsnap(abaco::Context, ts, sn)
     end
 
     if abaco.interval == -1
-    
         snap =  abaco.element[sn].snap[1]
         snap.ts = ts
         return snap
@@ -228,6 +243,11 @@ function getsnap(abaco::Context, ts, sn)
     snap
 end    
 
+"""
+    snap_add(snap::Snap, sn, var::String, val::Real)
+
+Adds the variable value of `sn` element to the `snap` snapshot. 
+"""
 function snap_add(snap::Snap, sn, var::String, val::Real)
     if !haskey(snap.vals, var)
         # first arrival of variable var
@@ -279,6 +299,14 @@ function setup_settings(abaco::Context,
     end
 end
 
+function add_element(abaco::Context, sn, type, parent)
+    if parent !== ""
+        container = abaco.element[parent]
+        add_origin(abaco, container, sn, type)
+    else
+        add_element(abaco, sn, type)
+    end
+end
 
 function add_element(abaco::Context, sn, type)
     # if type is unknow then fallback to the default settings
@@ -301,6 +329,10 @@ function add_element(abaco::Context, sn, type)
     el
 end
 
+function delete_element(abaco, sn)
+    delete!(abaco.element, sn)
+end
+
 function add_origin(abaco::Context, target, sn, type)
     elem = add_element(abaco, sn, type)
 
@@ -316,18 +348,16 @@ end
 
 """
 function add_formulas(abaco, df)
-    for (type, name, expression) in eachrow(df[1])
+    for (type, name, expression) in eachrow(df)
         if !haskey(abaco.cfg, type)
-            abaco.cfg[type] = SnapsSetting(nothing, -1, 1, false, nothing)
+            abaco.cfg[type] = SnapsSetting(nothing, false, nothing)
         end
         setting = abaco.cfg[type]
         formula = add_formula(setting, name, expression)
-        #@info "set $(row.type)::$(formula.output) formula"
         
-        # create a formula state for each element with type==row.type
+        # create a formula state for each element with el.type==type
         for el in values(abaco.element)
-            #@info "$(el.sn): $(el.type) == $(row.type)"
-            if el.type == row.type
+            if el.type == type
                 for snap in values(el.snap)
                     snap.outputs[formula.output] = FormulaState(false, formula.output)
                 end
@@ -344,16 +374,14 @@ end
 
 function add_formula(abaco::Context, type, name, expression)
     if !haskey(abaco.cfg, type)
-        abaco.cfg[type] = SnapsSetting(nothing, -1, 1, false, nothing)
+        abaco.cfg[type] = SnapsSetting(nothing, false, nothing)
     end
     setting = abaco.cfg[type]
     formula = add_formula(setting, name, expression)
-    #@info "set $(row.type)::$(formula.output) formula"
     
     # create a formula state for each element with type==row.type
     for el in values(abaco.element)
-        #@info "$(el.sn): $(el.type) == $(row.type)"
-        if el.type == row.type
+        if el.type == type
             for snap in values(el.snap)
                 snap.outputs[formula.output] = FormulaState(false, formula.output)
             end
@@ -391,6 +419,21 @@ function add_formula(setting::SnapsSetting, formula_def)
     formula
 end
 
+
+function delete_formula(abaco::Context, type::String, name::String)
+    if !haskey(abaco.cfg, type)
+        abaco.cfg[type] = SnapsSetting(nothing, false, nothing)
+    end
+    setting = abaco.cfg[type]
+    formula = setting.formula[name]
+
+    for invar in formula.inputs
+        delete!(setting.dependents[invar], name)
+    end
+    delete!(setting.formula, name)
+end
+
+
 """
     dependents(abaco::Context, type::String, var::String)
 
@@ -410,14 +453,14 @@ function dependents(abaco::Context, type::String, var::String)
     result
 end
 
-function dependents(abaco::Context, type::String, vars::Base.KeySet)
+function dependents(abaco::Context, type::String, vars)
     result = String[]
     if haskey(abaco.cfg, type)
         deps = abaco.cfg[type].dependents
         append!(result, union([haskey(deps, var) ? deps[var] : [] for var in vars]...))
     end
 
-    # TODO: merge glob dependents
+    # TODO?: merge glob dependents
 
     result
 end

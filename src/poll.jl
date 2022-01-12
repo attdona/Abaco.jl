@@ -10,7 +10,7 @@ function origins_vals(abaco::Context, sn, ts)
         for origin_elem in abaco.origins[sn]
             ropts = span(ts, abaco.interval)
             snap = origin_elem.snap[index]
-            #@debug "origin_elem [$(origin_elem.type).$(origin_elem.sn)]: $snap"
+            #@debug "$ropts --> origin_elem [$(origin_elem.type).$(origin_elem.sn)]: $snap"
             for (var, val) in snap.vals
                 newvar = "$(origin_elem.type).$var"
                 if !haskey(vals, newvar)
@@ -18,7 +18,8 @@ function origins_vals(abaco::Context, sn, ts)
                     vals[newvar] = value
                 end
                 #@debug "$sn var $newvar: appending $(val.value) (was $(vals[newvar].value))"
-                if (ropts === snap.ts)
+                # if interval == -1 considers all values collected at different times
+                if (abaco.interval == -1 || ropts === snap.ts)
                     append!(vals[newvar].value, val.value)
                 end
             end
@@ -31,7 +32,7 @@ function propagate(abaco::Context, snap, sn, formula_name)
     ts = snap.ts
     (etype, target) = abaco.target[sn]
     var = "$etype.$formula_name"
-    @debug "[$sn]: ts:$ts - propagating $var to element [$target]"
+    #@debug "[$sn]: ts:$ts - propagating $var to element [$target]"
     trigger_formulas(abaco, getsnap(abaco, ts, target), target, var)
 end
 
@@ -63,7 +64,7 @@ function poll_formulas(abaco, snap, sn, vars)
     cfg = snapsetting(abaco, type)
     formulas = dependents(abaco, type, vars)
 
-    @debug "[$sn] formulas that depends on [$vars]: $formulas"
+    #@debug "[$sn] formulas that depends on [$vars]: $formulas"
     for formula_name in formulas
         fstate = snap.outputs[formula_name]
 

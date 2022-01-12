@@ -103,7 +103,7 @@ mutable struct SnapsSetting
     handle::Any
     emitone::Bool
     formula::Dict{String, Formula} # formula name => formula
-    dependents::Dict{String, Set{String}} # independent variable => array of formula names where used
+    dependents::Dict{String, Set{String}} # variable => array of formula names where variable is used
     oncomplete::Union{Function, Nothing}
     SnapsSetting(handle,
             emitone,
@@ -135,8 +135,8 @@ mutable struct Context
     element::Dict{String, Element} # sn => element
     origins::Dict{String, Set{Element}} # sys_2 => [sn_21, sn_22]
     target::Dict{String, Tuple{String, String}} # sn_21 => (role_a, sys_2)
-    Context(interval, ages, ) = begin
-        new(interval, ages, Dict(), Dict(), Dict(), Dict(), DataFrame())
+    Context(interval, ages) = begin
+        new(interval, ages, Dict(), Dict(), Dict(), Dict())
     end
     Context(interval, ages, settings) = begin
         new(interval, ages, settings, Dict(), Dict(), Dict())
