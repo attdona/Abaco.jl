@@ -9,10 +9,11 @@ include("types.jl")
 include("context.jl")
 include("extractor.jl")
 include("formula.jl")
+include("kqi.jl")
 include("poll.jl")
 include("time.jl")
 
-export abaco_init, add_formula, add_formulas, add_element,
+export abaco_init, add_formula, add_formulas, add_kqi, add_element,
        add_origin, add_value, add_values, add_values!,
        last_value, last_point, get_values, get_collected, sum_collected,
        setup_settings, oncomplete, nowts,

@@ -2,17 +2,17 @@
 function origins_vals(abaco::Context, sn, ts)
     vals = Dict()
 
-    type = etype(abaco, sn)
-    ## cfg = snapsetting(abaco, type)
+    domain = etype(abaco, sn)
+    ## cfg = snapsetting(abaco, domain)
     index = abaco.interval == -1 ? 1 : mvindex(ts, abaco.interval, abaco.ages)
 
     if haskey(abaco.origins, sn)
         for origin_elem in abaco.origins[sn]
             ropts = span(ts, abaco.interval)
             snap = origin_elem.snap[index]
-            #@debug "$ropts --> origin_elem [$(origin_elem.type).$(origin_elem.sn)]: $snap"
+            #@debug "$ropts --> origin_elem [$(origin_elem.domain).$(origin_elem.sn)]: $snap"
             for (var, val) in snap.vals
-                newvar = "$(origin_elem.type).$var"
+                newvar = "$(origin_elem.domain).$var"
                 if !haskey(vals, newvar)
                     value = LValue(length(abaco.origins[sn]), [])
                     vals[newvar] = value
@@ -60,9 +60,9 @@ end
 # Check the completion status of all formulas that depends on `vars`.
 # 
 function poll_formulas(abaco, snap, sn, vars)
-    type = etype(abaco, sn)
-    cfg = snapsetting(abaco, type)
-    formulas = dependents(abaco, type, vars)
+    domain = etype(abaco, sn)
+    cfg = snapsetting(abaco, domain)
+    formulas = dependents(abaco, domain, vars)
 
     #@debug "[$sn] formulas that depends on [$vars]: $formulas"
     for formula_name in formulas
@@ -79,7 +79,6 @@ function poll_formulas(abaco, snap, sn, vars)
 
             # propagate to target 
             if haskey(abaco.target, sn)
-                #(etype, target) = abaco.target[sn]
                 propagate(abaco, snap, sn, formula_name)
             end
 
@@ -116,6 +115,15 @@ end
 #
 function poll(setting::SnapsSetting, formula_state::FormulaState, vals::Dict)
     formula = setting.formula[formula_state.f]
+    if formula.iskqi
+        poll_kqi(setting, formula, formula_state, vals)
+    else
+        poll_simple(setting, formula, formula_state, vals)
+    end
+end
+
+
+function poll_simple(setting::SnapsSetting, formula::Formula, formula_state::FormulaState, vals::Dict)
     # Step 1: decide if the formula may be evaluated: all variables are collected
     for v in formula.inputs
         if !(haskey(vals, v) && isready(vals[v]))
@@ -132,4 +140,16 @@ function poll(setting::SnapsSetting, formula_state::FormulaState, vals::Dict)
         return result
     end
     return nothing
+end
+
+function poll_kqi(setting::SnapsSetting, formula::Formula, formula_state::FormulaState, vals::Dict)
+    # Step 1: decide if the formula may be evaluated: all variables are collected
+    for v in formula.inputs
+        if !(haskey(vals, v))
+            return nothing
+        end
+    end
+    
+    # Step 2: evaluate the formula
+    eval_kqi(formula, vals)
 end

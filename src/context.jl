@@ -157,7 +157,7 @@ function get_collected(abaco::Context, sn, variable, ts)
         result = LValue(length(abaco.origins[sn]), [])
         for origin_elem in abaco.origins[sn]
             snap = origin_elem.snap[index]
-            if haskey(snap.vals, var) && origin_type == origin_elem.type
+            if haskey(snap.vals, var) && origin_type == origin_elem.domain
                 ropts = span(ts, abaco.interval)
                 # @debug "[get_collected] interval: $(abaco.interval) - snap ts ts: $(snap.ts), ts: $ts, ropts: $ropts"
                 if (ropts === snap.ts)
@@ -187,9 +187,9 @@ function get_collected(abaco, sn, variable)
     get_collected(abaco, sn, variable, ts)
 end
 
-etype(abaco, sn) = haskey(abaco.element, sn) ? abaco.element[sn].type : DEFAULT_TYPE
+etype(abaco, sn) = haskey(abaco.element, sn) ? abaco.element[sn].domain : DEFAULT_TYPE
 
-snapsetting(abaco, type) = haskey(abaco.cfg, type) ? abaco.cfg[type] : abaco.cfg[DEFAULT_TYPE]
+snapsetting(abaco, domain) = haskey(abaco.cfg, domain) ? abaco.cfg[domain] : abaco.cfg[DEFAULT_TYPE]
 
 """
     getsnap(abaco::Context, ts, sn)
@@ -197,11 +197,11 @@ snapsetting(abaco, type) = haskey(abaco.cfg, type) ? abaco.cfg[type] : abaco.cfg
 Returns the `sn` element snapshot relative to timestamp `ts`.
 """
 function getsnap(abaco::Context, ts, sn)
-    type = etype(abaco, sn)
-    ## cfg = snapsetting(abaco, type)
+    domain = etype(abaco, sn)
+    ## cfg = snapsetting(abaco, domain)
 
     if !haskey(abaco.element, sn)
-        add_element(abaco, sn, type)
+        add_element(abaco, sn, domain)
     end
 
     if abaco.interval == -1
@@ -254,7 +254,20 @@ function snap_add(snap::Snap, sn, var::String, val::Real)
         snap.vals[var] = SValue(val)
     else
         snap.vals[var].value = val
-        snap.vals[var].updated = time()
+        snap.vals[var].updated = nowts()
+    end
+end
+
+function snap_add(snap::Snap, sn, var::String, val::QValue)
+    if val.actual === val.expected
+        # Add only completed qvalues to the snapshot
+        if !haskey(snap.vals, var)
+            # first arrival of variable var
+            snap.vals[var] = SValue(val.value)
+        else
+            snap.vals[var].value = val.value
+            snap.vals[var].updated = nowts()
+        end
     end
 end
 
@@ -264,7 +277,7 @@ function snap_add(snap::Snap, sn, var::String, val::Vector{<:Real})
         snap.vals[var] = LValue(sn, val)
     else
         snap.vals[var].value = val
-        snap.vals[var].updated = time()
+        snap.vals[var].updated = nowts()
     end
 end
 
@@ -278,47 +291,47 @@ end
 
 
 function setup_settings(abaco::Context,
-                        type;
+                        domain;
                         handle=missing,
                         oncomplete=missing,
                         emitone=missing)
-    if !haskey(abaco.cfg, type)
-        abaco.cfg[type] = SnapsSetting(handle === missing ? nothing : handle,
+    if !haskey(abaco.cfg, domain)
+        abaco.cfg[domain] = SnapsSetting(handle === missing ? nothing : handle,
                                        emitone === missing ? false : emitone,
                                        oncomplete === missing ? nothing : oncomplete)
     else
         if handle !== missing
-            abaco.cfg[type].handle = handle
+            abaco.cfg[domain].handle = handle
         end
         if oncomplete !== missing
-            abaco.cfg[type].oncomplete = oncomplete
+            abaco.cfg[domain].oncomplete = oncomplete
         end
         if emitone !== missing
-            abaco.cfg[type].emitone = emitone
+            abaco.cfg[domain].emitone = emitone
         end
     end
 end
 
-function add_element(abaco::Context, sn, type, parent)
+function add_element(abaco::Context, sn, domain, parent)
     if parent !== ""
         container = abaco.element[parent]
-        add_origin(abaco, container, sn, type)
+        add_origin(abaco, container, sn, domain)
     else
-        add_element(abaco, sn, type)
+        add_element(abaco, sn, domain)
     end
 end
 
-function add_element(abaco::Context, sn, type)
-    # if type is unknow then fallback to the default settings
-    ##settings = get(abaco.cfg, type, abaco.cfg[DEFAULT_TYPE])
+function add_element(abaco::Context, sn, domain)
+    # if domain is unknow then fallback to the default settings
+    ##settings = get(abaco.cfg, domain, abaco.cfg[DEFAULT_TYPE])
     if abaco.interval == -1
-        el = Element(sn, type)
+        el = Element(sn, domain)
     else
-        el = Element(sn, type, abaco.ages)
+        el = Element(sn, domain, abaco.ages)
     end
 
-    if haskey(abaco.cfg, type)
-            for formula in values(abaco.cfg[type].formula)
+    if haskey(abaco.cfg, domain)
+            for formula in values(abaco.cfg[domain].formula)
                 for snap in values(el.snap)
                     snap.outputs[formula.output] = FormulaState(false, formula.output)
                 end
@@ -333,31 +346,31 @@ function delete_element(abaco, sn)
     delete!(abaco.element, sn)
 end
 
-function add_origin(abaco::Context, target, sn, type)
-    elem = add_element(abaco, sn, type)
+function add_origin(abaco::Context, target, sn, domain)
+    elem = add_element(abaco, sn, domain)
 
     if haskey(abaco.origins, target.sn)
         push!(abaco.origins[target.sn], elem)
     else
         abaco.origins[target.sn] = Set([elem])
     end
-    abaco.target[sn] = (type, target.sn)
+    abaco.target[sn] = (domain, target.sn)
 end
 
 """
 
 """
 function add_formulas(abaco, df)
-    for (type, name, expression) in eachrow(df)
-        if !haskey(abaco.cfg, type)
-            abaco.cfg[type] = SnapsSetting(nothing, false, nothing)
+    for (domain, name, expression) in eachrow(df)
+        if !haskey(abaco.cfg, domain)
+            abaco.cfg[domain] = SnapsSetting(nothing, false, nothing)
         end
-        setting = abaco.cfg[type]
+        setting = abaco.cfg[domain]
         formula = add_formula(setting, name, expression)
         
-        # create a formula state for each element with el.type==type
+        # create a formula state for each element with el.domain==domain
         for el in values(abaco.element)
-            if el.type == type
+            if el.domain == domain
                 for snap in values(el.snap)
                     snap.outputs[formula.output] = FormulaState(false, formula.output)
                 end
@@ -372,16 +385,16 @@ function add_formula(abaco::Context, formula_def)
 end
 
 
-function add_formula(abaco::Context, type, name, expression)
-    if !haskey(abaco.cfg, type)
-        abaco.cfg[type] = SnapsSetting(nothing, false, nothing)
+function add_formula(abaco::Context, domain, name, expression)
+    if !haskey(abaco.cfg, domain)
+        abaco.cfg[domain] = SnapsSetting(nothing, false, nothing)
     end
-    setting = abaco.cfg[type]
+    setting = abaco.cfg[domain]
     formula = add_formula(setting, name, expression)
     
-    # create a formula state for each element with type==row.type
+    # create a formula state for each element with domain==row.domain
     for el in values(abaco.element)
-        if el.type == type
+        if el.domain == domain
             for snap in values(el.snap)
                 snap.outputs[formula.output] = FormulaState(false, formula.output)
             end
@@ -407,6 +420,48 @@ where expression is a mathematical expression, like `x + y*w`.
 function add_formula(setting::SnapsSetting, formula_def)
     formula = extractor(formula_def)
     setting.formula[formula.output] = formula
+    setup_formula(setting, formula)
+end
+
+function add_kqi(abaco::Context, domain, name, expression)
+    if !haskey(abaco.cfg, domain)
+        abaco.cfg[domain] = SnapsSetting(nothing, false, nothing)
+    end
+    setting = abaco.cfg[domain]
+    formula = add_kqi(setting, name, expression)
+    
+    # create a formula state for each element with domain==row.domain
+    for el in values(abaco.element)
+        if el.domain == domain
+            for snap in values(el.snap)
+                snap.outputs[formula.output] = FormulaState(false, formula.output)
+            end
+        end
+    end
+end
+
+"""
+    add_kqi(setting::SnapsSetting, name, expression)
+
+Add the kqi defined by formula `name` defined by `expression`:
+a mathematical expression like `x + y*w`.
+"""
+add_kqi(setting::SnapsSetting, name, expression) = add_kqi(setting::SnapsSetting, "$name=$expression")
+
+"""
+    add_kqi(setting::SnapsSetting, formula_def::String)
+
+Add a kqi, with `formula_def` formatted as `"formula_name = expression"`,
+where expression is a mathematical expression, like `x + y*w`.
+"""
+function add_kqi(setting::SnapsSetting, formula_def)
+    formula = extractor(formula_def)
+    formula.iskqi = true
+    setup_formula(setting, formula)
+end
+
+function setup_formula(setting::SnapsSetting, formula::Formula)
+    setting.formula[formula.output] = formula
     # update the dependents
     for invar in formula.inputs
         if haskey(setting.dependents, invar)
@@ -420,11 +475,12 @@ function add_formula(setting::SnapsSetting, formula_def)
 end
 
 
-function delete_formula(abaco::Context, type::String, name::String)
-    if !haskey(abaco.cfg, type)
-        abaco.cfg[type] = SnapsSetting(nothing, false, nothing)
+
+function delete_formula(abaco::Context, domain::String, name::String)
+    if !haskey(abaco.cfg, domain)
+        abaco.cfg[domain] = SnapsSetting(nothing, false, nothing)
     end
-    setting = abaco.cfg[type]
+    setting = abaco.cfg[domain]
     formula = setting.formula[name]
 
     for invar in formula.inputs
@@ -435,14 +491,14 @@ end
 
 
 """
-    dependents(abaco::Context, type::String, var::String)
+    dependents(abaco::Context, domain::String, var::String)
 
 Returns the list of expressions that depends on `var`.
 """
-function dependents(abaco::Context, type::String, var::String)
+function dependents(abaco::Context, domain::String, var::String)
     result = String[]
-    if haskey(abaco.cfg, type)
-        deps = abaco.cfg[type].dependents
+    if haskey(abaco.cfg, domain)
+        deps = abaco.cfg[domain].dependents
         if haskey(deps, var)
             append!(result, deps[var])
         end
@@ -453,10 +509,10 @@ function dependents(abaco::Context, type::String, var::String)
     result
 end
 
-function dependents(abaco::Context, type::String, vars)
+function dependents(abaco::Context, domain::String, vars)
     result = String[]
-    if haskey(abaco.cfg, type)
-        deps = abaco.cfg[type].dependents
+    if haskey(abaco.cfg, domain)
+        deps = abaco.cfg[domain].dependents
         append!(result, union([haskey(deps, var) ? deps[var] : [] for var in vars]...))
     end
 

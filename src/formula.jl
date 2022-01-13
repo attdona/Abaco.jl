@@ -26,11 +26,11 @@ function advance(s::Symbol, map::Dict)
     end
 end    
 
-function advance(::Val{:.}, map::Dict)
-    qn = args[2].value
-    varname = "$(args[1]).$qn"
-    return map[var].value
-end
+#function advance(::Val{:.}, map::Dict)
+#    qn = args[2].value
+#    varname = "$(args[1]).$qn"
+#    return map[var].value
+#end
 
 function advance(x::Number, map::Dict)
     return x
@@ -83,6 +83,20 @@ getsymbol(::Val{x}) where x = x
 
 function advance(fsym::Val, args, map::Dict)
     sym = getsymbol(fsym)
-    return eval(sym)([advance(arg, map) for arg in args]...)
+    if hasproperty(Statistics, sym)
+        var = string(args[1])
+        if haskey(map, var)
+            return QValue(length(map[var].value),
+                          map[var].contribs,
+                          eval(sym)(map[var].value),
+                          nowts())
+        else
+            throw(UndefVarError(var))
+        end
+    else
+        return eval(sym)([advance(arg, map) for arg in args]...)
+    end
+
+    #return eval(sym)([advance(arg, map) for arg in args]...)
 end   
 

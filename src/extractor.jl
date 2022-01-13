@@ -27,7 +27,7 @@ function find_symbol(x::Number, formula::Formula)
 end    
 
 # To parse an expression, convert the head to a singleton
-# type, so that Julia can dispatch on that type.
+# domain, so that Julia can dispatch on that domain.
 function find_symbol(e::Expr, formula::Formula)
     find_symbol(Val(e.head), e.args, formula)
 end

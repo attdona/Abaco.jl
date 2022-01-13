@@ -4,21 +4,28 @@ abstract type Value end
 struct PValue <: Value
     q::Float64 # quality
     value::Float64
-    updated::Float64 # greater updated value of the list of values
+    updated::Int64 # more recent updated timestamp
+end
+
+struct QValue <: Value
+    actual::Int # current numbers of contributors
+    expected::Int # total number of expected contributors
+    value::Float64
+    updated::Int64 # time of evaluation
 end
 
 mutable struct SValue <: Value
     value::Float64
-    updated::Float64 # time of arrival
-    SValue(val::Real) = new(val, time())
+    updated::Int64 # time of arrival
+    SValue(val::Real) = new(val, nowts())
 end
 
 mutable struct LValue <: Value
     contribs::Int
     value::Vector{Float64}
-    updated::Float64 # greater updated value of the list of values
-    LValue(contribs, values) = new(contribs, values, time())
-    LValue(values::Vector{<:Real}) = new(1, values, time())
+    updated::Int64 # greater updated value of the list of values
+    LValue(contribs, values) = new(contribs, values, nowts())
+    LValue(values::Vector{<:Real}) = new(1, values, nowts())
 end
 
 isready(v::SValue) = !isnan(v.value)
@@ -29,7 +36,8 @@ mutable struct Formula
     output::String
     inputs::Set{String}
     expr::Union{Expr, Symbol}
-    Formula(definition, ast) = new(definition, Set(), ast)
+    iskqi::Bool
+    Formula(definition, ast) = new(definition, Set(), ast, false)
 end
 
 abstract type AbacoError <: Exception end
@@ -117,11 +125,11 @@ end
 
 mutable struct Element
     sn::String
-    type::String
+    domain::String
     snap::Dict{Int, Snap}
     currsnap::Int
-    Element(sn, type) = new(sn, type, Dict(1 => Snap(Dict())), 1)
-    Element(sn, type, ages) = new(sn, type, Dict(i => Snap(Dict()) for i in 1:ages), 1)
+    Element(sn, domain) = new(sn, domain, Dict(1 => Snap(Dict())), 1)
+    Element(sn, domain, ages) = new(sn, domain, Dict(i => Snap(Dict()) for i in 1:ages), 1)
 end
 
 
@@ -131,7 +139,7 @@ The abaco registry.
 mutable struct Context
     interval::Int64
     ages::Int64
-    cfg::Dict{String, SnapsSetting}  # type => snaps setting
+    cfg::Dict{String, SnapsSetting}  # domain => snaps setting
     element::Dict{String, Element} # sn => element
     origins::Dict{String, Set{Element}} # sys_2 => [sn_21, sn_22]
     target::Dict{String, Tuple{String, String}} # sn_21 => (role_a, sys_2)
