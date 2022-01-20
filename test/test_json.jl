@@ -9,9 +9,14 @@ y = 2
 z = 3
 very_long_variable = 5
 
+expected_triggers = 1
+actual_triggers = 0
+
 function onresult(ts, sn, name, value, inputs)
+    global actual_triggers
     @debug "age [$ts]: scope: [$sn] $name = $value"
     @test value == (x + y * very_long_variable)/z
+    actual_triggers += 1
 end
 
 abaco = abaco_init(onresult)
@@ -43,3 +48,4 @@ pkt = JSON3.read(json_str, Dict{String, Any})
 
 add_values!(abaco, pkt)
 
+@test actual_triggers === expected_triggers

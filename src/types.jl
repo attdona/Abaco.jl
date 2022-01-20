@@ -2,13 +2,7 @@
 abstract type Value end
 
 struct PValue <: Value
-    q::Float64 # quality
-    value::Float64
-    updated::Int64 # more recent updated timestamp
-end
-
-struct QValue <: Value
-    actual::Int # current numbers of contributors
+    contribs::Int # current numbers of contributors
     expected::Int # total number of expected contributors
     value::Float64
     updated::Int64 # time of evaluation
@@ -36,7 +30,7 @@ mutable struct Formula
     output::String
     inputs::Set{String}
     expr::Union{Expr, Symbol}
-    iskqi::Bool
+    progressive::Bool
     Formula(definition, ast) = new(definition, Set(), ast, false)
 end
 
@@ -142,7 +136,7 @@ mutable struct Context
     cfg::Dict{String, SnapsSetting}  # domain => snaps setting
     element::Dict{String, Element} # sn => element
     origins::Dict{String, Set{Element}} # sys_2 => [sn_21, sn_22]
-    target::Dict{String, Tuple{String, String}} # sn_21 => (role_a, sys_2)
+    target::Dict{String, Tuple{String, String}} # sn_21 => (sn_21 domain, sys_2)
     Context(interval, ages) = begin
         new(interval, ages, Dict(), Dict(), Dict(), Dict())
     end

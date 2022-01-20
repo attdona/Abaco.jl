@@ -44,12 +44,13 @@ current_footprint = get_collected(abaco, city.sn, "sensor.footprint", ts)
 
 footprint_sum = sum_collected(abaco, city.sn, "sensor.footprint", ts)
 @debug "footprint sum: $footprint_sum"
-@test footprint_sum.q == 2/3
+@test footprint_sum.contribs == 2
+@test footprint_sum.expected == 3
 @test footprint_sum.value == 950
 
 add_values(abaco, ts, sn3, Dict("footprint" => 1000.0))
 
 footprint_sum = sum_collected(abaco, city.sn, "sensor.footprint", ts)
 @debug "footprint sum: $footprint_sum"
-@test footprint_sum.q == 1.0
+@test footprint_sum.contribs == 3
 @test footprint_sum.value == 1950

@@ -10,6 +10,9 @@ metric_sn = "Marmolada"
 interval = 5
 ages = 4
 
+expected_triggers = 1
+actual_triggers = 0
+
 values = Dict(
     "x" => 2.0,
     "y" => 4.0,
@@ -17,10 +20,12 @@ values = Dict(
     )
     
 function onresult(ts, sn, name, value, inputs)
+    global actual_triggers
     @debug "age [$ts]: scope: [$sn] $name = $value"
     @test ts == metric_ts
     @test sn == metric_sn
     @test value == 14.0
+    actual_triggers += 1
 end
     
 abaco = abaco_init(onresult, interval=interval, ages=ages)
@@ -33,3 +38,4 @@ add_formula(abaco, "w = x + y + z")
 
 add_values(abaco, metric_ts, metric_sn, values)
 
+@test actual_triggers === expected_triggers

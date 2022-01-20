@@ -1,3 +1,137 @@
+"""
+
+"""
+function add_formulas(abaco, df)
+    for (domain, name, expression) in eachrow(df)
+        if !haskey(abaco.cfg, domain)
+            abaco.cfg[domain] = SnapsSetting(nothing, false, nothing)
+        end
+        setting = abaco.cfg[domain]
+        formula = add_formula(setting, name, expression)
+        
+        # create a formula state for each element with el.domain==domain
+        for el in values(abaco.element)
+            if el.domain == domain
+                for snap in values(el.snap)
+                    snap.outputs[formula.output] = FormulaState(false, formula.output)
+                end
+            end
+        end
+    end
+end
+
+function add_formula(abaco::Context, formula_def)
+    setting = abaco.cfg[DEFAULT_TYPE]
+    add_formula(setting, formula_def)
+end
+
+
+function add_formula(abaco::Context, domain, name, expression)
+    if !haskey(abaco.cfg, domain)
+        abaco.cfg[domain] = SnapsSetting(nothing, false, nothing)
+    end
+    setting = abaco.cfg[domain]
+    formula = add_formula(setting, name, expression)
+
+    # create a formula state for each element with domain==row.domain
+    for el in values(abaco.element)
+        if el.domain == domain
+            for snap in values(el.snap)
+                snap.outputs[formula.output] = FormulaState(false, formula.output)
+            end
+        end
+    end
+    formula
+end
+
+"""
+    add_formula(setting::SnapsSetting, name, expression)
+
+Add the formula `name` defined by `expression`:
+a mathematical expression like `x + y*w`.
+"""
+add_formula(setting::SnapsSetting, name, expression) = add_formula(setting::SnapsSetting, "$name=$expression")
+
+
+"""
+    add_formula(setting::SnapsSetting, formula_def::String)
+
+Add a formula, with `formula_def` formatted as `"formula_name = expression"`,
+where expression is a mathematical expression, like `x + y*w`.
+"""
+function add_formula(setting::SnapsSetting, formula_def)
+    formula = extractor(formula_def)
+    setting.formula[formula.output] = formula
+    setup_formula(setting, formula)
+end
+
+function setup_formula(setting::SnapsSetting, formula::Formula)
+    setting.formula[formula.output] = formula
+
+    # delete already present dependents, otherwise formula redefinition 
+    # could not work as expected
+    for dependent in values(setting.dependents)
+        delete!(dependent, formula.output)
+    end
+
+    # update the dependents
+    for invar in formula.inputs
+        if haskey(setting.dependents, invar)
+            push!(setting.dependents[invar], formula.output)
+        else
+            setting.dependents[invar] = Set([formula.output])
+        end
+    end
+
+    formula
+end
+
+
+function delete_formula(abaco::Context, domain::String, name::String)
+    if !haskey(abaco.cfg, domain)
+        abaco.cfg[domain] = SnapsSetting(nothing, false, nothing)
+    end
+    setting = abaco.cfg[domain]
+    formula = setting.formula[name]
+
+    for invar in formula.inputs
+        delete!(setting.dependents[invar], name)
+    end
+    delete!(setting.formula, name)
+end
+
+
+"""
+    dependents(abaco::Context, domain::String, var::String)
+
+Returns the list of expressions that depends on `var`.
+"""
+function dependents(abaco::Context, domain::String, var::String)
+    result = String[]
+    if haskey(abaco.cfg, domain)
+        deps = abaco.cfg[domain].dependents
+        if haskey(deps, var)
+            append!(result, deps[var])
+        end
+    end
+
+    # TODO: merge glob dependents
+
+    result
+end
+
+function dependents(abaco::Context, domain::String, vars)
+    result = String[]
+    if haskey(abaco.cfg, domain)
+        deps = abaco.cfg[domain].dependents
+        append!(result, union([haskey(deps, var) ? deps[var] : [] for var in vars]...))
+    end
+
+    # TODO?: merge glob dependents
+
+    result
+end
+
 #
 #     eval(formula::Formula, map::Dict{String,SValue})
 # 
@@ -86,7 +220,7 @@ function advance(fsym::Val, args, map::Dict)
     if hasproperty(Statistics, sym)
         var = string(args[1])
         if haskey(map, var)
-            return QValue(length(map[var].value),
+            return PValue(length(map[var].value),
                           map[var].contribs,
                           eval(sym)(map[var].value),
                           nowts())

@@ -4,32 +4,73 @@ CurrentModule = Abaco
 
 # Abaco
 
-Abaco computes formulas output from a stream of input variables.
-
-Abaco aims to target the case where a number of IoT sensor, network devices or other types of objects that send periodic variable values must be combined into output values defined by math expressions.
+Abaco computes formulas output from a stream of metric values as soon as all needed input values are collected.
 
 In a real world scenario values are coming asynchronously, delayed and out of orders. Abaco may manage values referring to different times.
 
 ## Basic Concepts
 
+An input value is associated with a node entity identified by a unique name.
+
+A node may be seen as a data source or a data fusion domain: all variables that belong to the same node can be used by some formula. 
+
+Abaco manages a hierarchy of nodes, more on that later.
+
+A node must be provisioned before sending metric values associated with the node:
+
+```julia
+julia> add_node(abaco, "my_node") 
+```
+
+A metric data point is a measure associated with a node.
+A metric is defined by: 
+    
+* a `node` entity unique name     
+* a `ts` timestamp
+* a metric name
+* a metric value
+
+Metric values are ingested in a "flat" JSON format: 
+`node` and `ts` are reserved keyword whereas the others properties are metrics values.
+
+A single metric value example:
+
+```json
+{
+    "node": "my_network_element",
+    "ts": 1642605647,
+    "x": 1.5     
+}
+
+```
+
+And a batch of metrics is coded as:
+
+```json
+{
+    "node": "my_network_element",
+    "ts": 1642605647,
+    "x": 1.5,
+    "y": 25,
+    "z": 999,
+    ...   
+}
+```
+Metrics names are the names of the indipendent variables used by Abaco formulas. 
 
 ### formula
 
-A named math expression:
+A formula is named math expression defined by a string:
 
 ```julia
-    myformula = x + y
+julia> formula = "my_formula = x + y"
+
+julia> add_formula(abaco, formula)
 ```
 
 As soon as all inputs variables are collected, in this case `x` and `y`, formula `myformula` is evaluated and [onresult](#Abaco.abaco_init-Tuple{Any}) callback is triggered.
 
 A formula is computable if all the independents variables belong to the same [time window](#time-window).
-
-### sn
-
-The identifier of the element sending the input variables.
-
-It is up to you to choose the acronym for `sn` that best fits the context: sensor name, scope name or short name if it were a unique string extracted for a long distinguish name `dn` string.
 
 ### time span
 
@@ -78,8 +119,8 @@ using Abaco
 
 # Initialize abaco context with a time_window of 60 seconds and handle
 # input values with timestamp ts up to 4 contiguous spans.
-abaco = abaco_init(interval=60, ages=4) do ts, sn, fname, value, inputs
-    @info "[$ts][$sn] function $fname=$value"
+abaco = abaco_init(interval=60, ages=4) do ts, node, formula_name, value, inputs
+    @info "[$ts][$node] function $formula_name=$value"
 end
 
 # Add desired outputs in terms of inputs variables x, y, z, v, w
@@ -93,26 +134,26 @@ end
 # normally ts is the UTC timestamp from epoch in seconds.
 # but for semplicity assume time start from zero.
 
-# the device AG101 sends the x value at timestamp 0.
+# the node AG101 sends the x value at timestamp 0.
 ts = 0
-device = "AG101"
-add_value(abaco, ts, device, "x", 10)
+node = "AG101"
+add_value(abaco, ts, node, "x", 10)
 
 # Time flows and about 1 minute later ...
 
-# the device CE987 sends the y value at timestamp 65.
+# the node CE987 sends the y value at timestamp 65.
 ts = 65
-device = "CE987"
-add_value(abaco, ts, device, "y", 10)
+node = "CE987"
+add_value(abaco, ts, node, "y", 10)
 
 # Time flows and more than 1 minute later ...
 
-# Finally the device AG101 sends the y value calculated at timestamp 0.
+# Finally the node AG101 sends the y value calculated at timestamp 0.
 # At this instant the formulas that depends on x and y are computable
 # for the element AG101 at timestamp 0.
 ts = 0
-device = "AG101"
-add_value(abaco, ts, device, "y", 20)
+node = "AG101"
+add_value(abaco, ts, node, "y", 20)
 [ Info: [0][AG101] function xysum=30
 [ Info: [0][AG101] function rsigma=1.7848230096318724e9
 
@@ -120,8 +161,8 @@ add_value(abaco, ts, device, "y", 20)
 # Note that x timestamp is 65, y timestamp is 101
 # and the formulas timestamp is 60: the START_TIME of the span. 
 ts = 101
-device = "CE987"
-add_value(abaco, ts, device, "x", 10)
+node = "CE987"
+add_value(abaco, ts, node, "x", 10)
 [ Info: [60][CE987] function xysum=20
 [ Info: [60][CE987] function rsigma=81030.83927575384
 
@@ -134,12 +175,12 @@ For example:
 ```julia
 sock = connect(3001)
 
-abaco = abaco_init(handle=sock, interval=900) do sock, ts, sn, name, value, inputs
-    @info "age [$ts]: [$sn] $name = $value"
+abaco = abaco_init(handle=sock, interval=900) do sock, ts, node, formula_name, value, inputs
+    @info "age [$ts]: [$node] $formula_name = $value"
     msg = JSON3.write(Dict(
-                        "sn" => sn,
+                        "node" => node,
                         "age" => ts, 
-                        "formula" => name,
+                        "formula" => formula_name,
                         "value" => value))
     write(sock, msg*"\n")
 end

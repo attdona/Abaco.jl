@@ -1,16 +1,16 @@
 using Statistics
 
 #
-#     eval_kqi(formula::Formula, map::Dict{String,SValue})
+#     eval_progressive(formula::Formula, map::Dict{String,SValue})
 # 
-# Compute the kqi defined by `formula`, looking up the values of
+# Compute the progressive defined by `formula`, looking up the values of
 # inputs variables in `map`, and returns the result.
 # 
 # In case of error throws [`Abaco.EvalError`](@ref).
 #
-function eval_kqi(formula::Formula, map::Dict)
+function eval_progressive(formula::Formula, map::Dict)
     try
-        return kqi_advance(formula.expr, map)
+        return progressive_advance(formula.expr, map)
     catch ex
         # for error troubleshooting
         # showerror(stdout, ex, catch_backtrace())
@@ -18,7 +18,7 @@ function eval_kqi(formula::Formula, map::Dict)
     end
 end    
 
-function kqi_advance(s::Symbol, map::Dict)
+function progressive_advance(s::Symbol, map::Dict)
     var = String(s) 
     if haskey(map, var)
         return map[var].value
@@ -27,19 +27,19 @@ function kqi_advance(s::Symbol, map::Dict)
     end
 end    
 
-function kqi_advance(x::Number, map::Dict)
+function progressive_advance(x::Number, map::Dict)
     return x
 end    
 
-function kqi_advance(e::Expr, map::Dict)
-    return kqi_advance(Val(e.head), e.args, map)
+function progressive_advance(e::Expr, map::Dict)
+    return progressive_advance(Val(e.head), e.args, map)
 end
 
-function kqi_advance(::Val{:call}, args, map::Dict)
-    return kqi_advance(Val(args[1]), args[2:end], map)
+function progressive_advance(::Val{:call}, args, map::Dict)
+    return progressive_advance(Val(args[1]), args[2:end], map)
 end
 
-function kqi_advance(::Val{:ref}, args, map::Dict)
+function progressive_advance(::Val{:ref}, args, map::Dict)
     var = String(args[1])
     idx = args[2]
     if haskey(map, var)
@@ -54,12 +54,12 @@ function kqi_advance(::Val{:ref}, args, map::Dict)
 end
 
 
-function kqi_advance(fsym::Val, args, map::Dict)
+function progressive_advance(fsym::Val, args, map::Dict)
     sym = getsymbol(fsym)
     if isdefined(Statistics, sym)
         var = string(args[1])
         if haskey(map, var)
-            return QValue(length(map[var].value),
+            return PValue(length(map[var].value),
                           map[var].contribs,
                           eval(sym)(map[var].value),
                           nowts())

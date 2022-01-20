@@ -10,7 +10,11 @@ r = (x + y) / exp(z)
 w = (x + y) / z
 sum = x + y + z + t
 
+expected_triggers = 3
+actual_triggers = 0
+
 function onresult(ts, target_sn, target_name, value, inputs)
+    global actual_triggers
     @debug "age [$ts]: scope: [$target_sn] $target_name = $value"
     @debug "inputs: $inputs"
     
@@ -24,6 +28,7 @@ function onresult(ts, target_sn, target_name, value, inputs)
     if target_name === "w"
         @test value == w
     end
+    actual_triggers += 1
 end
 
 # My time zone: Saturday, October 30, 2021 3:43:35 PM GMT+02:00 DST
@@ -69,3 +74,5 @@ add_values!(abaco, Dict(
 
 result = get_values(abaco, sn, "r")
 @debug "get_values(r) = $result"
+
+@test actual_triggers === expected_triggers

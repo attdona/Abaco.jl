@@ -1,7 +1,11 @@
 using Abaco
 using DelimitedFiles
+using Test
 
 datadir=joinpath(@__DIR__,"data")
+
+expected_triggers = 6
+actual_triggers = 0
 
 ts = 1635601415
 sn1 = "mi01"
@@ -16,7 +20,9 @@ values = Dict(
 df = readdlm(joinpath(datadir,"formulas.csv"), ';', header=true)
 
 function onresult(ts, sn, name, value, inputs)
+    global actual_triggers
     @debug "age [$ts]: sn: [$sn] $name = $value"
+    actual_triggers += 1
 end
 
 abaco = abaco_init(onresult, interval=-1)
@@ -46,3 +52,5 @@ add_values(abaco, ts, sn2, values)
 
 vals = Abaco.origins_vals(abaco, "milano", ts)
 @debug "origin_vals: $vals"
+
+@test actual_triggers === expected_triggers

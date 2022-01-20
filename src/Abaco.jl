@@ -9,11 +9,11 @@ include("types.jl")
 include("context.jl")
 include("extractor.jl")
 include("formula.jl")
-include("kqi.jl")
+include("progressive.jl")
 include("poll.jl")
 include("time.jl")
 
-export abaco_init, add_formula, add_formulas, add_kqi, add_element,
+export abaco_init, add_formula, add_formulas, add_progressive, add_element,
        add_origin, add_value, add_values, add_values!,
        last_value, last_point, get_values, get_collected, sum_collected,
        setup_settings, oncomplete, nowts,
@@ -69,7 +69,7 @@ function abaco_init(onresult;
                     handle=nothing,
                     interval::Int=-1,
                     ages::Int=1,
-                    emitone::Bool=true)::Context
+                    emitone::Bool=false)::Context
                     DEBUG = get(ENV, "ABACO_DEBUG", "0")
     logging(debug = DEBUG=="0" ? [] : [@__MODULE__, Main])
     @debug "resetting abaco ..."
@@ -77,6 +77,9 @@ function abaco_init(onresult;
     Context(interval, ages, Dict(DEFAULT_TYPE=>cfg))
 end
 
+abaco_init() = abaco_init() do ts, sn, name, value, inputs
+    @info "$name(ts:$ts, sn:$sn) = $value"
+end
 
 function oncomplete(onresult, abaco::Context)
     abaco.cfg[DEFAULT_TYPE].oncomplete = onresult

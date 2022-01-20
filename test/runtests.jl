@@ -19,6 +19,8 @@ using SafeTestsets
         @time @safetestset "if" begin include("test_if.jl") end
         @time @safetestset "csv_formulas" begin include("test_csv_formulas.jl") end
         @time @safetestset "co2" begin include("test_co2.jl") end
-        @time @safetestset "co2" begin include("test_kqi.jl") end
+        @time @safetestset "progressive" begin include("test_progressive.jl") end
+        @time @safetestset "deep_progressive" begin include("test_deep_progressive.jl") end
+        @time @safetestset "deep_count" begin include("test_deep_count.jl") end
     end
 end

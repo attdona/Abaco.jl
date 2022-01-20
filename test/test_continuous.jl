@@ -10,7 +10,7 @@ metric_sn = "Marmolada"
 width = -1
 ages = 4
 
-expected_triggers = 2
+expected_triggers = 4
 actual_triggers = 0
 
 values = Dict(
