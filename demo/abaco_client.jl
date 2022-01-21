@@ -41,6 +41,4 @@ function script_main()
     close(sock)
 end
 
-#if !isempty(ARGS)
-    script_main()
-#end
+script_main()
