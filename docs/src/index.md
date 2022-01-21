@@ -25,52 +25,64 @@ julia> add_node(abaco, "my_node")
 A metric data point is a measure associated with a node.
 A metric is defined by: 
     
-* a `node` entity unique name     
-* a `ts` timestamp
+* a node unique name      
+* a timestamp
 * a metric name
 * a metric value
 
-Metric values are ingested in a "flat" JSON format: 
-`node` and `ts` are reserved keyword whereas the others properties are metrics values.
+Abaco understands metric values ingested in a "flat" `Dict{String,Any}`.
 
-A single metric value example:
+`en` and `ts` are reserved keyword for the unique node name and the
+timestamp whereas the others properties represent metrics values.
 
-```json
-{
-    "node": "my_network_element",
-    "ts": 1642605647,
-    "x": 1.5     
-}
+A record with a single metric example:
+
+```julia
+julia> x_metric = Dict(
+    "en" => "my_network_element",
+    "ts" => 1642605647,
+    "x" => 1.5
+)
+
+julia> y_metric = Dict(
+    "en" => "my_network_element",
+    "ts" => 1642605647,
+    "y" => 8.5
+)
 
 ```
 
-And a batch of metrics is coded as:
+And a record with a batch of metrics:
 
-```json
-{
-    "node": "my_network_element",
-    "ts": 1642605647,
-    "x": 1.5,
-    "y": 25,
-    "z": 999,
-    ...   
-}
+```julia
+julia> metrics = Dict(
+    "en" => "my_network_element",
+    "ts" => 1642605647,
+    "x" => 1.5,
+    "y" => 25,
+    "z" => 999
+)
 ```
-Metrics names are the names of the indipendent variables used by Abaco formulas. 
-
-### formula
+Metrics names are the names of the indipendent variables used by Abaco formulas.
 
 A formula is named math expression defined by a string:
 
 ```julia
-julia> formula = "my_formula = x + y"
-
-julia> add_formula(abaco, formula)
+                        # formula name   expr
+julia> add_formula(abaco, "my_formula", "x + y")
 ```
 
-As soon as all inputs variables are collected, in this case `x` and `y`, formula `myformula` is evaluated and [onresult](#Abaco.abaco_init-Tuple{Any}) callback is triggered.
+As soon as all inputs variables are collected and belong to the same [time window](#time-window) the formula result is calculated.
 
-A formula is computable if all the independents variables belong to the same [time window](#time-window).
+Using the above example as soon as both `x` and `y` are collected formula `my_formula` is evaluated and [onresult](#Abaco.abaco_init-Tuple{Any}) default callback is triggered.
+
+The default callback print the result summary to the console.
+```julia
+julia> add_metrics(abaco, x_metric)
+
+julia> add_metrics(abaco, y_metric)
+my_formula(ts:1642605647, sn:my_network_element) = 10.0
+```
 
 ### time span
 

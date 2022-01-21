@@ -137,11 +137,12 @@ mutable struct Context
     element::Dict{String, Element} # sn => element
     origins::Dict{String, Set{Element}} # sys_2 => [sn_21, sn_22]
     target::Dict{String, Tuple{String, String}} # sn_21 => (sn_21 domain, sys_2)
-    Context(interval, ages) = begin
-        new(interval, ages, Dict(), Dict(), Dict(), Dict())
+    oncompletedefault::Union{Function, Nothing}
+    Context(interval, ages, oncomplete=nothing) = begin
+        new(interval, ages, Dict(), Dict(), Dict(), Dict(), oncomplete)
     end
-    Context(interval, ages, settings) = begin
-        new(interval, ages, settings, Dict(), Dict(), Dict())
+    Context(interval, ages, settings, oncomplete) = begin
+        new(interval, ages, settings, Dict(), Dict(), Dict(), oncomplete)
     end
 end
 

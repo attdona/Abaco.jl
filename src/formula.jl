@@ -28,7 +28,7 @@ end
 
 function add_formula(abaco::Context, domain, name, expression)
     if !haskey(abaco.cfg, domain)
-        abaco.cfg[domain] = SnapsSetting(nothing, false, nothing)
+        abaco.cfg[domain] = SnapsSetting(nothing, false, abaco.oncompletedefault)
     end
     setting = abaco.cfg[domain]
     formula = add_formula(setting, name, expression)
@@ -43,6 +43,8 @@ function add_formula(abaco::Context, domain, name, expression)
     end
     formula
 end
+
+add_formula(abaco, name, expression) = add_formula(abaco, "", name, expression)
 
 """
     add_formula(setting::SnapsSetting, name, expression)

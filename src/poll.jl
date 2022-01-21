@@ -87,13 +87,16 @@ end
 # Check the completion status of all formulas that depends on `vars`.
 # 
 function poll_formulas(abaco, snap, sn, vars)
+    if snap === nothing
+        return
+    end
     domain = etype(abaco, sn)
     cfg = snapsetting(abaco, domain)
     formulas = dependents(abaco, domain, vars)
 
     @debug "[$sn] formulas that depends on [$vars]: $formulas"
     for formula_name in formulas
-        fstate = snap.outputs[formula_name]
+        fstate = get(snap.outputs, formula_name, FormulaState(false, formula_name))
 
         # pull up the origins variables
         ovals = origins_vals(abaco, sn, snap.ts)

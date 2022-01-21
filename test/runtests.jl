@@ -10,6 +10,7 @@ using SafeTestsets
     @testset "unit" begin
         @time @safetestset "get_values" begin include("test_get_values.jl") end
         @time @safetestset "push_value" begin include("test_push_value.jl") end
+        @time @safetestset "too_old" begin include("test_too_old.jl") end
         @time @safetestset "push_msg" begin include("test_push_msg.jl") end
         @time @safetestset "push_ages" begin include("test_push_ages.jl") end
         @time @safetestset "json" begin include("test_json.jl") end

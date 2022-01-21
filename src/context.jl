@@ -103,7 +103,7 @@ function add_values(abaco, ts, sn, values)
     trigger_formulas(abaco, snap, sn, keys(values))
 end
 
-function add_values(abaco, payload)
+function add_values(abaco, payload::Dict{String, Any})
     ts = payload["ts"]
     sn = payload["sn"]
     snap = getsnap(abaco, ts, sn)
@@ -113,6 +113,7 @@ function add_values(abaco, payload)
     end
     trigger_formulas(abaco, snap, sn, vars)
 end
+
 
 """
     add_value(abaco, ts::Int, sn::String, var::String, val::Real)

@@ -74,11 +74,11 @@ function abaco_init(onresult;
     logging(debug = DEBUG=="0" ? [] : [@__MODULE__, Main])
     @debug "resetting abaco ..."
     cfg = SnapsSetting(handle, emitone, onresult)
-    Context(interval, ages, Dict(DEFAULT_TYPE=>cfg))
+    Context(interval, ages, Dict(DEFAULT_TYPE=>cfg), onresult)
 end
 
 abaco_init() = abaco_init() do ts, sn, name, value, inputs
-    @info "$name(ts:$ts, sn:$sn) = $value"
+    println("$name(ts:$ts, sn:$sn) = $value")
 end
 
 function oncomplete(onresult, abaco::Context)
