@@ -27,11 +27,11 @@ end
 abaco = abaco_init(onresult, interval=interval, ages=ages)
 
 # add a formula that is not evaluated because variable t is not feeded
-add_formula(abaco, "r = x + y")
+formula(abaco, "r = x + y")
 
-add_values(abaco, metric_ts, metric_sn, values)
+ingest(abaco, metric_ts, metric_sn, values)
 
 # a too old value must be ignored
-add_values(abaco, metric_ts-10, metric_sn, values)
+ingest(abaco, metric_ts-10, metric_sn, values)
 
 @test actual_triggers === expected_triggers

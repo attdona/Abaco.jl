@@ -39,10 +39,10 @@ abstract type AbacoError <: Exception end
 """
 Wrong formula definition.
 
-[`add_formula`](@ref) throws `WrongFormula` when a formula is malformed,
+[`formula`](@ref) throws `WrongFormula` when a formula is malformed,
 for example:
 
-`add_formula(abaco, "myformula = x + ")`
+`formula(abaco, "myformula = x + ")`
 """
 struct WrongFormula <: AbacoError
     formula::String
@@ -51,11 +51,11 @@ end
 """
 Formula evaluation failure.
 
-[`add_value`] throws EvalError when a runtime formula evaluation fails,
+[`ingest`] throws EvalError when a runtime formula evaluation fails,
 for example for a wrong numbers of method args:
     
-    add_formula(abaco, "div(x,y,z")
-    add_value(abaco, ts, sn, Dict("x"=>10, "y"=>1, "z"=1))
+    formula(abaco, "div(x,y,z")
+    ingest(abaco, ts, sn, Dict("x"=>10, "y"=>1, "z"=1))
 
 """
 struct EvalError <: AbacoError

@@ -44,26 +44,26 @@ abaco = abaco_init(onresult, interval=interval)
 
 setup_settings(abaco, "state", oncomplete=onresult)
 
-add_formula(abaco, "state", "total", "sum(region.city.footprint)")
+formula(abaco, "total", "sum(region.city.footprint)", "state")
 
 
-italy = add_element(abaco, "italy", "state")
-veneto = add_origin(abaco, italy, "veneto", "region")
-trentino = add_origin(abaco, italy, "trentino", "region")
-belluno = add_origin(abaco, veneto, "belluno", "city")
-padova = add_origin(abaco, veneto, "padova", "city")
-rovereto = add_origin(abaco, trentino, "rovereto", "city")
-pergine = add_origin(abaco, trentino, "pergine", "city")
+italy = node(abaco, "italy", "state")
+veneto = node(abaco, italy, "veneto", "region")
+trentino = node(abaco, italy, "trentino", "region")
+belluno = node(abaco, veneto, "belluno", "city")
+padova = node(abaco, veneto, "padova", "city")
+rovereto = node(abaco, trentino, "rovereto", "city")
+pergine = node(abaco, trentino, "pergine", "city")
 
 #@info "TEST: veneto origins: $(abaco.origins[veneto.sn])"
 
 #current_footprint = get_collected(abaco, italy.sn, "region.city.footprint")
 #@debug "initial carbon footprints: $current_footprint"
 
-add_values(abaco, ts, belluno.sn, Dict("footprint" => val1))
+ingest(abaco, ts, belluno.sn, Dict("footprint" => val1))
 
-add_values(abaco, ts, padova.sn, Dict("footprint" => val2))
-add_values(abaco, ts, rovereto.sn, Dict("footprint" => val3))
+ingest(abaco, ts, padova.sn, Dict("footprint" => val2))
+ingest(abaco, ts, rovereto.sn, Dict("footprint" => val3))
 
 #current_footprint = get_collected(abaco, italy.sn, "region.city.footprint", ts)
 #@debug "current carbon footprint: $current_footprint"

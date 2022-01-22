@@ -17,11 +17,11 @@ end
     
 abaco = abaco_init(onresult, interval=interval, ages=ages)
 
-add_formula(abaco, "myformula = (x + y)")
+formula(abaco, "myformula = (x + y)")
 
 for ts in 0:6
-    add_value(abaco, ts, mo, "x", ts)
+    ingest(abaco, ts, mo, "x", ts)
 end
 
 # too old, formula must not be evaluated
-add_value(abaco, 1, mo, "y", 4)
+ingest(abaco, 1, mo, "y", 4)

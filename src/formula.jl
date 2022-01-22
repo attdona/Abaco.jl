@@ -7,61 +7,61 @@ function add_formulas(abaco, df)
             abaco.cfg[domain] = SnapsSetting(nothing, false, nothing)
         end
         setting = abaco.cfg[domain]
-        formula = add_formula(setting, name, expression)
+        f = formula(setting, name, expression)
         
         # create a formula state for each element with el.domain==domain
         for el in values(abaco.element)
             if el.domain == domain
                 for snap in values(el.snap)
-                    snap.outputs[formula.output] = FormulaState(false, formula.output)
+                    snap.outputs[f.output] = FormulaState(false, f.output)
                 end
             end
         end
     end
 end
 
-function add_formula(abaco::Context, formula_def)
+function formula(abaco::Context, formula_def)
     setting = abaco.cfg[DEFAULT_TYPE]
-    add_formula(setting, formula_def)
+    formula(setting, formula_def)
 end
 
 
-function add_formula(abaco::Context, domain, name, expression)
+function formula(abaco::Context, name, expression, domain)
     if !haskey(abaco.cfg, domain)
         abaco.cfg[domain] = SnapsSetting(nothing, false, abaco.oncompletedefault)
     end
     setting = abaco.cfg[domain]
-    formula = add_formula(setting, name, expression)
+    f = formula(setting, name, expression)
 
     # create a formula state for each element with domain==row.domain
     for el in values(abaco.element)
         if el.domain == domain
             for snap in values(el.snap)
-                snap.outputs[formula.output] = FormulaState(false, formula.output)
+                snap.outputs[f.output] = FormulaState(false, f.output)
             end
         end
     end
-    formula
+    f
 end
 
-add_formula(abaco, name, expression) = add_formula(abaco, "", name, expression)
+formula(abaco, name, expression) = formula(abaco, name, expression, "")
 
 """
-    add_formula(setting::SnapsSetting, name, expression)
+    formula(setting::SnapsSetting, name, expression)
 
 Add the formula `name` defined by `expression`:
 a mathematical expression like `x + y*w`.
 """
-add_formula(setting::SnapsSetting, name, expression) = add_formula(setting::SnapsSetting, "$name=$expression")
+formula(setting::SnapsSetting, name, expression) = formula(setting::SnapsSetting, "$name=$expression")
 
 
 """
-    add_formula(setting::SnapsSetting, formula_def::String)
+    formula(setting::SnapsSetting, formula_def::String)
 
 Add a formula, with `formula_def` formatted as `"formula_name = expression"`,
 where expression is a mathematical expression, like `x + y*w`.
 """
-function add_formula(setting::SnapsSetting, formula_def)
+function formula(setting::SnapsSetting, formula_def)
     formula = extractor(formula_def)
     setting.formula[formula.output] = formula
     setup_formula(setting, formula)
@@ -89,7 +89,7 @@ function setup_formula(setting::SnapsSetting, formula::Formula)
 end
 
 
-function delete_formula(abaco::Context, domain::String, name::String)
+function delete_formula(abaco::Context, name::String, domain::String)
     if !haskey(abaco.cfg, domain)
         abaco.cfg[domain] = SnapsSetting(nothing, false, nothing)
     end

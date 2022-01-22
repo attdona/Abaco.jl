@@ -17,19 +17,19 @@ abaco = abaco_init(onresult, interval=interval)
 
 setup_settings(abaco, "state", oncomplete=onresult)
 
-add_formula(abaco, "state", "total", "sum(region.city.footprint)")
+formula(abaco, "total", "sum(region.city.footprint)", "state")
 
 
-italy = add_element(abaco, "italy", "state")
-veneto = add_origin(abaco, italy, "veneto", "region")
-trentino = add_origin(abaco, italy, "trentino", "region")
+italy = node(abaco, "italy", "state")
+veneto = node(abaco, italy, "veneto", "region")
+trentino = node(abaco, italy, "trentino", "region")
 
-add_origin(abaco, veneto, "belluno", "city")
-add_origin(abaco, veneto, "padova", "city")
-add_origin(abaco, trentino, "rovereto", "city")
-add_origin(abaco, trentino, "pergine", "city")
-add_origin(abaco, trentino, "mori", "city")
-add_origin(abaco, trentino, "bondone", "mountain")
+node(abaco, veneto, "belluno", "city")
+node(abaco, veneto, "padova", "city")
+node(abaco, trentino, "rovereto", "city")
+node(abaco, trentino, "pergine", "city")
+node(abaco, trentino, "mori", "city")
+node(abaco, trentino, "bondone", "mountain")
 
 nodes = split("region.city.footprint", ".")[1:end-1]
 count = Abaco.deep_count(abaco, italy.sn, nodes)

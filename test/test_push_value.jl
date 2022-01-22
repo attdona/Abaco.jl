@@ -31,11 +31,11 @@ end
 abaco = abaco_init(onresult, interval=interval, ages=ages)
 
 # add a formula that is not evaluated because variable t is not feeded
-add_formula(abaco, "r = (x + y) / exp(t)")
+formula(abaco, "r = (x + y) / exp(t)")
 
 # this gets evaluated (2 + 4 + 8 = 14)
-add_formula(abaco, "w = x + y + z")
+formula(abaco, "w = x + y + z")
 
-add_values(abaco, metric_ts, metric_sn, values)
+ingest(abaco, metric_ts, metric_sn, values)
 
 @test actual_triggers === expected_triggers

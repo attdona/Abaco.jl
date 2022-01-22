@@ -63,12 +63,12 @@ function abacod(ctx, channel)
             "xyz = x * y * z"
         ]
             println("\t$formula")
-            add_formula(abaco, formula)
+            formula(abaco, formula)
         end
     
         while true
             metric = take!(channel)
-            add_values(abaco, metric)
+            ingest(abaco, metric)
             for sock in ctx.subscribers
                 write(sock, "DONE\n")
             end

@@ -25,19 +25,19 @@ setup_settings(abaco, "hub", oncomplete=onresult)
 #df = readdlm(joinpath(datadir,"formulas_co2.csv"), ';', header=true)
 #add_formulas(abaco, df)
 
-add_formula(abaco, "hub", "total_footprint", "sum(sensor.footprint)")
+formula(abaco, "hub", "total_footprint", "sum(sensor.footprint)")
 
-city = add_element(abaco, "trento", "hub")
+city = node(abaco, "trento", "hub")
 
-add_origin(abaco, city, sn1, "sensor")
-add_origin(abaco, city, sn2, "sensor")
-add_origin(abaco, city, sn3, "sensor")
+node(abaco, city, sn1, "sensor")
+node(abaco, city, sn2, "sensor")
+node(abaco, city, sn3, "sensor")
 
 current_footprint = get_collected(abaco, city.sn, "sensor.footprint")
 @debug "initial carbon footprints: $current_footprint"
 
-add_values(abaco, ts, sn1, Dict("footprint" => 250.0))
-add_values(abaco, ts, sn2, Dict("footprint" => 700.0))
+ingest(abaco, ts, sn1, Dict("footprint" => 250.0))
+ingest(abaco, ts, sn2, Dict("footprint" => 700.0))
 
 current_footprint = get_collected(abaco, city.sn, "sensor.footprint", ts)
 @debug "current carbon footprint: $current_footprint"
@@ -48,7 +48,7 @@ footprint_sum = sum_collected(abaco, city.sn, "sensor.footprint", ts)
 @test footprint_sum.expected == 3
 @test footprint_sum.value == 950
 
-add_values(abaco, ts, sn3, Dict("footprint" => 1000.0))
+ingest(abaco, ts, sn3, Dict("footprint" => 1000.0))
 
 footprint_sum = sum_collected(abaco, city.sn, "sensor.footprint", ts)
 @debug "footprint sum: $footprint_sum"

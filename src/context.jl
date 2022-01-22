@@ -51,7 +51,7 @@ end
 
 
 """
-    add_values!(abaco, payload)
+    ingest!(abaco, payload)
 
 Adds the input variables included in the `payload` dictionary.
 
@@ -67,17 +67,17 @@ This function modifies the `payload` dictionary: `sn` and `ts` keys are popped o
         "x" => 23.2,
         "y" => 100
     )
-    add_values!(abaco, ts, sn, payload)
+    ingest!(abaco, ts, sn, payload)
 ```
 """
-function add_values!(abaco, payload)
+function ingest!(abaco, payload)
     ts = pop!(payload, "ts")
     sn = pop!(payload, "sn")
-    add_values(abaco, ts, sn, payload)
+    ingest(abaco, ts, sn, payload)
 end
 
 """
-    add_values(abaco, ts, sn, values)
+    ingest(abaco, ts, sn, values)
 
 Adds the input variables include in the dictionary `values`.
 
@@ -92,10 +92,10 @@ Adds the input variables include in the dictionary `values`.
         "x" => 23.2,
         "y" => 100
     )
-    add_values(abaco, ts, sn, values)
+    ingest(abaco, ts, sn, values)
 ```
 """
-function add_values(abaco, ts, sn, values)
+function ingest(abaco, ts, sn, values)
     snap = getsnap(abaco, ts, sn)
     for (var, val) in values
         snap_add(snap, sn, var, val)
@@ -103,7 +103,7 @@ function add_values(abaco, ts, sn, values)
     trigger_formulas(abaco, snap, sn, keys(values))
 end
 
-function add_values(abaco, payload::Dict{String, Any})
+function ingest(abaco, payload::Dict{String, Any})
     ts = payload["ts"]
     sn = payload["sn"]
     snap = getsnap(abaco, ts, sn)
@@ -116,7 +116,7 @@ end
 
 
 """
-    add_value(abaco, ts::Int, sn::String, var::String, val::Real)
+    ingest(abaco, ts::Int, sn::String, var::String, val::Real)
 
 Adds the input variable `var` with value `val`.
 
@@ -126,13 +126,13 @@ Adds the input variable `var` with value `val`.
 * `val`: variable value
 
 """
-function add_value(abaco, ts::Int, sn::String, var::String, val::Real)
+function ingest(abaco, ts::Int, sn::String, var::String, val::Real)
     snap = getsnap(abaco, ts, sn)
     snap_add(snap, sn, var, val)
     trigger_formulas(abaco, snap, sn, var)
 end
 
-function add_value(abaco, ts::Int, sn::String, var::String, val::Vector{<:Real})
+function ingest(abaco, ts::Int, sn::String, var::String, val::Vector{<:Real})
     snap = getsnap(abaco, ts, sn)
     snap_add(snap, sn, var, val)
     trigger_formulas(abaco, snap, sn, var)
@@ -202,7 +202,7 @@ function getsnap(abaco::Context, ts, sn)
     ## cfg = snapsetting(abaco, domain)
 
     if !haskey(abaco.element, sn)
-        add_element(abaco, sn, domain)
+        node(abaco, sn, domain)
     end
 
     if abaco.interval == -1
@@ -311,51 +311,5 @@ function setup_settings(abaco::Context,
             abaco.cfg[domain].emitone = emitone
         end
     end
-end
-
-function add_element(abaco::Context, sn, domain, parent)
-    if parent !== ""
-        container = abaco.element[parent]
-        add_origin(abaco, container, sn, domain)
-    else
-        add_element(abaco, sn, domain)
-    end
-end
-
-function add_element(abaco::Context, sn, domain)
-    # if domain is unknow then fallback to the default settings
-    ##settings = get(abaco.cfg, domain, abaco.cfg[DEFAULT_TYPE])
-    if abaco.interval == -1
-        el = Element(sn, domain)
-    else
-        el = Element(sn, domain, abaco.ages)
-    end
-
-    if haskey(abaco.cfg, domain)
-            for formula in values(abaco.cfg[domain].formula)
-                for snap in values(el.snap)
-                    snap.outputs[formula.output] = FormulaState(false, formula.output)
-                end
-            end
-    end
-
-    abaco.element[sn] = el
-    el
-end
-
-function delete_element(abaco, sn)
-    delete!(abaco.element, sn)
-end
-
-function add_origin(abaco::Context, target, sn, domain)
-    elem = add_element(abaco, sn, domain)
-
-    if haskey(abaco.origins, target.sn)
-        push!(abaco.origins[target.sn], elem)
-    else
-        abaco.origins[target.sn] = Set([elem])
-    end
-    abaco.target[sn] = (domain, target.sn)
-    return elem
 end
 

@@ -32,16 +32,16 @@ setup_settings(abaco, "hub", oncomplete=onresult)
 
 add_formulas(abaco, df[1])
 
-city = add_element(abaco, "milano", "hub")
+city = node(abaco, "milano", "hub")
 
-#sensor = add_element(abaco, sn, "sensor")
-add_origin(abaco, city, sn1, "sensor")
-add_origin(abaco, city, sn2, "sensor")
+#sensor = node(abaco, sn, "sensor")
+node(abaco, city, sn1, "sensor")
+node(abaco, city, sn2, "sensor")
 
-add_values(abaco, ts, sn1, values)
-add_values(abaco, ts, sn2, values)
+ingest(abaco, ts, sn1, values)
+ingest(abaco, ts, sn2, values)
 
-#add_values(abaco, ts, sn1, Dict("x"=>4))
+#ingest(abaco, ts, sn1, Dict("x"=>4))
 
 #@info "elements: $(abaco.element)"
 #@info "hub: $(abaco.element["milano"])"

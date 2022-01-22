@@ -41,30 +41,30 @@ abaco = abaco_init(onresult, interval=interval, ages=ages)
 sn = "Mulaz"
 
 # add a formula
-add_formula(abaco, "r = (x + y) / exp(z)")
-add_formula(abaco, "w = (x + y) / z")
-add_formula(abaco, "sum = x + y + z + t")
+formula(abaco, "r = (x + y) / exp(z)")
+formula(abaco, "w = (x + y) / z")
+formula(abaco, "sum = x + y + z + t")
 
-add_values!(abaco, Dict(
+ingest!(abaco, Dict(
                 "sn" => sn,
                 "ts" => ts,
                 "x" => x,
             ))
 
-add_values!(abaco, Dict(
+ingest!(abaco, Dict(
                 "sn" => sn,
                 "ts" => ts+2,
                 "y" => y,
                 "z" => z
             ))
 
-add_values!(abaco, Dict(
+ingest!(abaco, Dict(
                 "sn" => sn,
                 "ts" => ts+2,
                 "t" => t,
             ))
 
-add_values!(abaco, Dict(
+ingest!(abaco, Dict(
                 "sn" => sn,
                 "ts" => ts+2,
                 "w" => nothing,

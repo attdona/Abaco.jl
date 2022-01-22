@@ -27,7 +27,7 @@ result = last_value(abaco, sn, "not_existent")
 @debug "last_value(not_existent) = $result"
 @test result === nothing
 
-add_values!(abaco, Dict(
+ingest!(abaco, Dict(
                 "sn" => sn,
                 "ts" => ts,
                 "x" => 100,
@@ -44,7 +44,7 @@ result = last_value(abaco, sn, "x")
 @test result === 100.0
 
 for i = 0:5:40
-    add_values!(abaco, Dict(
+    ingest!(abaco, Dict(
         "sn" => sn,
         "ts" => ts+i,
         "x" => i,

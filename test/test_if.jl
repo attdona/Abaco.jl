@@ -13,10 +13,9 @@ abaco = abaco_init(interval=window) do ts, sn, name, value, inputs
     @test value == 100.0
 end
 
-formula = "r = x == 0 ? y : 2"
-add_formula(abaco, formula)
+formula(abaco, "r = x == 0 ? y : 2")
 
-add_value(abaco, ts, sn, "x", 0)
+ingest(abaco, ts, sn, "x", 0)
 
-@test_throws Abaco.EvalError add_value(abaco, ts, sn, "y", 100)
+@test_throws Abaco.EvalError ingest(abaco, ts, sn, "y", 100)
 

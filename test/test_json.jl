@@ -22,7 +22,7 @@ end
 abaco = abaco_init(onresult)
 
 # add a formula
-f = add_formula(abaco, "(x + y * very_long_variable)/z")
+f = formula(abaco, "(x + y * very_long_variable)/z")
 
 # The values may be received one at time or in a batch
 # The only mandatory fields are sn and ts
@@ -46,6 +46,6 @@ json_str = JSON3.write(msg)
 
 pkt = JSON3.read(json_str, Dict{String, Any})
 
-add_values!(abaco, pkt)
+ingest!(abaco, pkt)
 
 @test actual_triggers === expected_triggers

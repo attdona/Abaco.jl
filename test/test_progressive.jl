@@ -59,25 +59,24 @@ abaco = abaco_init(onresult, interval=interval)
 
 setup_settings(abaco, "hub", oncomplete=onresult)
 
-add_formula(abaco, "hub", "footprint_sum", "sum(sensor.footprint)")
-add_formula(abaco, "hub", "footprint_mean", "mean(sensor.footprint)")
-add_formula(abaco, "hub", "footprint_std", "std(sensor.footprint)")
-add_formula(abaco, "hub", "progressive_fake", "x")
+formula(abaco, "footprint_sum", "sum(sensor.footprint)", "hub")
+formula(abaco, "footprint_mean", "mean(sensor.footprint)", "hub")
+formula(abaco, "footprint_std", "std(sensor.footprint)", "hub")
+formula(abaco, "progressive_fake", "x", "hub")
+formula(abaco, "foobar", "x+y", "hub")
+formula(abaco, "offset_footprint", "x + footprint_sum", "hub")
 
-add_formula(abaco, "hub", "foobar", "x+y")
-add_formula(abaco, "hub", "offset_footprint", "x + footprint_sum")
+city = node(abaco, "trento", "hub")
 
-city = add_element(abaco, "trento", "hub")
-
-add_origin(abaco, city, sn1, "sensor")
-add_origin(abaco, city, sn2, "sensor")
-add_origin(abaco, city, sn3, "sensor")
+node(abaco, city, sn1, "sensor")
+node(abaco, city, sn2, "sensor")
+node(abaco, city, sn3, "sensor")
 
 current_footprint = get_collected(abaco, city.sn, "sensor.footprint")
 @debug "initial carbon footprints: $current_footprint"
 
-add_values(abaco, ts, sn1, Dict("footprint" => val1))
-add_values(abaco, ts, sn2, Dict("footprint" => val2))
+ingest(abaco, ts, sn1, Dict("footprint" => val1))
+ingest(abaco, ts, sn2, Dict("footprint" => val2))
 
 current_footprint = get_collected(abaco, city.sn, "sensor.footprint", ts)
 @debug "current carbon footprint: $current_footprint"
@@ -88,14 +87,14 @@ footprint_sum = sum_collected(abaco, city.sn, "sensor.footprint", ts)
 @test footprint_sum.expected == 3
 @test footprint_sum.value == val1 + val2
 
-add_values(abaco, ts, sn3, Dict("footprint" => val3))
+ingest(abaco, ts, sn3, Dict("footprint" => val3))
 
 footprint_sum = sum_collected(abaco, city.sn, "sensor.footprint", ts)
 @debug "footprint sum: $footprint_sum"
 @test footprint_sum.contribs == 3
 @test footprint_sum.value == val1 + val2 + val3
 
-add_values(abaco, ts, city.sn, Dict(
+ingest(abaco, ts, city.sn, Dict(
     "x" => x,
     "y" => 20
 ))
