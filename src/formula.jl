@@ -2,16 +2,16 @@
 
 """
 function add_formulas(abaco, df)
-    for (domain, name, expression) in eachrow(df)
-        if !haskey(abaco.cfg, domain)
-            abaco.cfg[domain] = SnapsSetting(nothing, false, nothing)
+    for (tag, name, expression) in eachrow(df)
+        if !haskey(abaco.cfg, tag)
+            abaco.cfg[tag] = SnapsSetting(nothing, false, nothing)
         end
-        setting = abaco.cfg[domain]
+        setting = abaco.cfg[tag]
         f = formula(setting, name, expression)
         
-        # create a formula state for each element with el.domain==domain
-        for el in values(abaco.element)
-            if el.domain == domain
+        # create a formula state for each node with el.tag==tag
+        for el in values(abaco.node)
+            if el.tag == tag
                 for snap in values(el.snap)
                     snap.outputs[f.output] = FormulaState(false, f.output)
                 end
@@ -26,16 +26,16 @@ function formula(abaco::Context, formula_def)
 end
 
 
-function formula(abaco::Context, name, expression, domain)
-    if !haskey(abaco.cfg, domain)
-        abaco.cfg[domain] = SnapsSetting(nothing, false, abaco.oncompletedefault)
+function formula(abaco::Context, name, expression, tag)
+    if !haskey(abaco.cfg, tag)
+        abaco.cfg[tag] = SnapsSetting(nothing, false, abaco.oncompletedefault)
     end
-    setting = abaco.cfg[domain]
+    setting = abaco.cfg[tag]
     f = formula(setting, name, expression)
 
-    # create a formula state for each element with domain==row.domain
-    for el in values(abaco.element)
-        if el.domain == domain
+    # create a formula state for each node with tag==row.tag
+    for el in values(abaco.node)
+        if el.tag == tag
             for snap in values(el.snap)
                 snap.outputs[f.output] = FormulaState(false, f.output)
             end
@@ -89,11 +89,11 @@ function setup_formula(setting::SnapsSetting, formula::Formula)
 end
 
 
-function delete_formula(abaco::Context, name::String, domain::String)
-    if !haskey(abaco.cfg, domain)
-        abaco.cfg[domain] = SnapsSetting(nothing, false, nothing)
+function delete_formula(abaco::Context, name::String, tag::String)
+    if !haskey(abaco.cfg, tag)
+        abaco.cfg[tag] = SnapsSetting(nothing, false, nothing)
     end
-    setting = abaco.cfg[domain]
+    setting = abaco.cfg[tag]
     formula = setting.formula[name]
 
     for invar in formula.inputs
@@ -104,14 +104,14 @@ end
 
 
 """
-    dependents(abaco::Context, domain::String, var::String)
+    dependents(abaco::Context, tag::String, var::String)
 
 Returns the list of expressions that depends on `var`.
 """
-function dependents(abaco::Context, domain::String, var::String)
+function dependents(abaco::Context, tag::String, var::String)
     result = String[]
-    if haskey(abaco.cfg, domain)
-        deps = abaco.cfg[domain].dependents
+    if haskey(abaco.cfg, tag)
+        deps = abaco.cfg[tag].dependents
         if haskey(deps, var)
             append!(result, deps[var])
         end
@@ -122,10 +122,10 @@ function dependents(abaco::Context, domain::String, var::String)
     result
 end
 
-function dependents(abaco::Context, domain::String, vars)
+function dependents(abaco::Context, tag::String, vars)
     result = String[]
-    if haskey(abaco.cfg, domain)
-        deps = abaco.cfg[domain].dependents
+    if haskey(abaco.cfg, tag)
+        deps = abaco.cfg[tag].dependents
         append!(result, union([haskey(deps, var) ? deps[var] : [] for var in vars]...))
     end
 

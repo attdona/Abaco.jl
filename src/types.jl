@@ -117,13 +117,13 @@ mutable struct SnapsSetting
 end
 
 
-mutable struct Element
+mutable struct Node
     sn::String
-    domain::String
+    tag::String
     snap::Dict{Int, Snap}
     currsnap::Int
-    Element(sn, domain) = new(sn, domain, Dict(1 => Snap(Dict())), 1)
-    Element(sn, domain, ages) = new(sn, domain, Dict(i => Snap(Dict()) for i in 1:ages), 1)
+    Node(sn, tag) = new(sn, tag, Dict(1 => Snap(Dict())), 1)
+    Node(sn, tag, ages) = new(sn, tag, Dict(i => Snap(Dict()) for i in 1:ages), 1)
 end
 
 
@@ -133,10 +133,10 @@ The abaco registry.
 mutable struct Context
     interval::Int64
     ages::Int64
-    cfg::Dict{String, SnapsSetting}  # domain => snaps setting
-    element::Dict{String, Element} # sn => element
-    origins::Dict{String, Set{Element}} # sys_2 => [sn_21, sn_22]
-    target::Dict{String, Tuple{String, String}} # sn_21 => (sn_21 domain, sys_2)
+    cfg::Dict{String, SnapsSetting}  # tag => snaps setting
+    node::Dict{String, Node} # sn => node
+    origins::Dict{String, Set{Node}} # sys_2 => [sn_21, sn_22]
+    target::Dict{String, Tuple{String, String}} # sn_21 => (sn_21 tag, sys_2)
     oncompletedefault::Union{Function, Nothing}
     Context(interval, ages, oncomplete=nothing) = begin
         new(interval, ages, Dict(), Dict(), Dict(), Dict(), oncomplete)

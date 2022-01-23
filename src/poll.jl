@@ -7,9 +7,9 @@ end
 function deep_count(abaco, sn, domains)
     #@debug "deep_count: $sn, domains: $domains"
     count = 0
-    # TODO: filter on domain value
+    # TODO: filter on tag value
     if length(domains) === 1
-        return length(filter(el->el.domain == domains[1], abaco.origins[sn]))
+        return length(filter(el->el.tag == domains[1], abaco.origins[sn]))
     else
         for node in abaco.origins[sn]
             count += deep_count(abaco, node.sn, domains[2:end])
@@ -26,10 +26,10 @@ function origins_vals(abaco::Context, sn, ts)
         for origin_elem in abaco.origins[sn]
             ropts = span(ts, abaco.interval)
             snap = origin_elem.snap[index]
-            # @debug "$ropts --> origin_elem [$(origin_elem.domain).$(origin_elem.sn)]: $snap"
+            # @debug "$ropts --> origin_elem [$(origin_elem.tag).$(origin_elem.sn)]: $snap"
             
             for (var, val) in all_values(abaco, ts, origin_elem.sn, snap)
-                newvar = "$(origin_elem.domain).$var"
+                newvar = "$(origin_elem.tag).$var"
                 #@debug "[$sn] getting var $newvar"
                 if !haskey(vals, newvar)
                     nodes = split(newvar, ".")[1:end-1]
@@ -51,7 +51,7 @@ function propagate(abaco::Context, snap, sn, formula_name)
     ts = snap.ts
     (etype, target) = abaco.target[sn]
     var = "$etype.$formula_name"
-    #@debug "[$sn]: ts:$ts - propagating $var to element [$target]"
+    #@debug "[$sn]: ts:$ts - propagating $var to node [$target]"
     trigger_formulas(abaco, getsnap(abaco, ts, target), target, var)
 end
 
@@ -90,9 +90,9 @@ function poll_formulas(abaco, snap, sn, vars)
     if snap === nothing
         return
     end
-    domain = etype(abaco, sn)
-    cfg = snapsetting(abaco, domain)
-    formulas = dependents(abaco, domain, vars)
+    tag = etype(abaco, sn)
+    cfg = snapsetting(abaco, tag)
+    formulas = dependents(abaco, tag, vars)
 
     @debug "[$sn] formulas that depends on [$vars]: $formulas"
     for formula_name in formulas

@@ -18,7 +18,7 @@ export abaco_init, formula, add_formulas, node,
        ingest, ingest!,
        last_value, last_point, get_values, get_collected, sum_collected,
        setup_settings, oncomplete, nowts,
-       Context, Element, dependents, etype, span
+       Context, Node, dependents, etype, span
 
 
 

@@ -1,45 +1,45 @@
 using OrderedCollections
 
 function last_point(abaco, sn, var)
-    if haskey(abaco.element, sn)
-        cursor = abaco.element[sn].currsnap
-        ts = abaco.element[sn].snap[cursor].ts
-        vals = abaco.element[sn].snap[cursor].vals
+    if haskey(abaco.node, sn)
+        cursor = abaco.node[sn].currsnap
+        ts = abaco.node[sn].snap[cursor].ts
+        vals = abaco.node[sn].snap[cursor].vals
         if haskey(vals, var)
             return (ts, vals[var].value)
         end
     else
-        # unknown sn element
+        # unknown sn node
         return nothing
     end
-    # missing var for sn element
+    # missing var for sn node
     missing
 end
 
 function last_value(abaco, sn, var)
-    if haskey(abaco.element, sn)
-        cursor = abaco.element[sn].currsnap
-        ts = abaco.element[sn].snap[cursor].ts
-        vals = abaco.element[sn].snap[cursor].vals
+    if haskey(abaco.node, sn)
+        cursor = abaco.node[sn].currsnap
+        ts = abaco.node[sn].snap[cursor].ts
+        vals = abaco.node[sn].snap[cursor].vals
         if haskey(vals, var)
             return vals[var].value
         end
     else
-        # unknown sn element
+        # unknown sn node
         return nothing
     end
-    # missing var for sn element
+    # missing var for sn node
     missing
 end
 
 function get_values(abaco, sn, var)
     result = OrderedDict{Int, Float64}()
 
-    if haskey(abaco.element, sn)
-        cursor = abaco.element[sn].currsnap
+    if haskey(abaco.node, sn)
+        cursor = abaco.node[sn].currsnap
         for i = 1:abaco.ages
-            vals = abaco.element[sn].snap[cursor].vals
-            ts = abaco.element[sn].snap[cursor].ts
+            vals = abaco.node[sn].snap[cursor].vals
+            ts = abaco.node[sn].snap[cursor].ts
             if haskey(vals, var)
                 result[ts] = vals[var].value
             end
@@ -85,7 +85,7 @@ Adds the input variables include in the dictionary `values`.
     # now timestamp 
     ts = nowts()
 
-    # short name of network element
+    # short name of network node
     sn = "trento.castello"
 
     values = Dict(
@@ -158,7 +158,7 @@ function get_collected(abaco::Context, sn, variable, ts)
         result = LValue(length(abaco.origins[sn]), [])
         for origin_elem in abaco.origins[sn]
             snap = origin_elem.snap[index]
-            if haskey(snap.vals, var) && origin_type == origin_elem.domain
+            if haskey(snap.vals, var) && origin_type == origin_elem.tag
                 ropts = span(ts, abaco.interval)
                 # @debug "[get_collected] interval: $(abaco.interval) - snap ts ts: $(snap.ts), ts: $ts, ropts: $ropts"
                 if (ropts === snap.ts)
@@ -188,25 +188,25 @@ function get_collected(abaco, sn, variable)
     get_collected(abaco, sn, variable, ts)
 end
 
-etype(abaco, sn) = haskey(abaco.element, sn) ? abaco.element[sn].domain : DEFAULT_TYPE
+etype(abaco, sn) = haskey(abaco.node, sn) ? abaco.node[sn].tag : DEFAULT_TYPE
 
-snapsetting(abaco, domain) = haskey(abaco.cfg, domain) ? abaco.cfg[domain] : abaco.cfg[DEFAULT_TYPE]
+snapsetting(abaco, tag) = haskey(abaco.cfg, tag) ? abaco.cfg[tag] : abaco.cfg[DEFAULT_TYPE]
 
 """
     getsnap(abaco::Context, ts, sn)
 
-Returns the `sn` element snapshot relative to timestamp `ts`.
+Returns the `sn` node snapshot relative to timestamp `ts`.
 """
 function getsnap(abaco::Context, ts, sn)
-    domain = etype(abaco, sn)
-    ## cfg = snapsetting(abaco, domain)
+    tag = etype(abaco, sn)
+    ## cfg = snapsetting(abaco, tag)
 
-    if !haskey(abaco.element, sn)
-        node(abaco, sn, domain)
+    if !haskey(abaco.node, sn)
+        node(abaco, sn, tag)
     end
 
     if abaco.interval == -1
-        snap =  abaco.element[sn].snap[1]
+        snap =  abaco.node[sn].snap[1]
         snap.ts = ts
         return snap
     end
@@ -215,7 +215,7 @@ function getsnap(abaco::Context, ts, sn)
     ropts = span(ts, abaco.interval)
     index = mvindex(ts, abaco.interval, abaco.ages)
 
-    elem = abaco.element[sn]
+    elem = abaco.node[sn]
     snap = elem.snap[index]
 
     if snap.ts < ropts
@@ -247,7 +247,7 @@ end
 """
     snap_add(snap::Snap, sn, var::String, val::Real)
 
-Adds the variable value of `sn` element to the `snap` snapshot. 
+Adds the variable value of `sn` node to the `snap` snapshot. 
 """
 function snap_add(snap::Snap, sn, var::String, val::Real)
     if !haskey(snap.vals, var)
@@ -292,23 +292,23 @@ end
 
 
 function setup_settings(abaco::Context,
-                        domain;
+                        tag;
                         handle=missing,
                         oncomplete=missing,
                         emitone=missing)
-    if !haskey(abaco.cfg, domain)
-        abaco.cfg[domain] = SnapsSetting(handle === missing ? nothing : handle,
+    if !haskey(abaco.cfg, tag)
+        abaco.cfg[tag] = SnapsSetting(handle === missing ? nothing : handle,
                                        emitone === missing ? false : emitone,
                                        oncomplete === missing ? nothing : oncomplete)
     else
         if handle !== missing
-            abaco.cfg[domain].handle = handle
+            abaco.cfg[tag].handle = handle
         end
         if oncomplete !== missing
-            abaco.cfg[domain].oncomplete = oncomplete
+            abaco.cfg[tag].oncomplete = oncomplete
         end
         if emitone !== missing
-            abaco.cfg[domain].emitone = emitone
+            abaco.cfg[tag].emitone = emitone
         end
     end
 end

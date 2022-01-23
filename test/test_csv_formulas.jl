@@ -43,10 +43,10 @@ ingest(abaco, ts, sn2, values)
 
 #ingest(abaco, ts, sn1, Dict("x"=>4))
 
-#@info "elements: $(abaco.element)"
-#@info "hub: $(abaco.element["milano"])"
+#@info "elements: $(abaco.node)"
+#@info "hub: $(abaco.node["milano"])"
 #@info "hub settings: $(abaco.cfg["hub"])"
-#@info "mi01: $(abaco.element["mi01"])"
+#@info "mi01: $(abaco.node["mi01"])"
 #@info "origins: $(abaco.origins)"
 #@info "target: $(abaco.target)"
 

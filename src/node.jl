@@ -1,46 +1,46 @@
-function node(abaco::Context, sn, domain, parent)
+function node(abaco::Context, sn, tag, parent)
     if parent !== ""
-        container = abaco.element[parent]
-        node(abaco, container, sn, domain)
+        container = abaco.node[parent]
+        node(abaco, container, sn, tag)
     else
-        node(abaco, sn, domain)
+        node(abaco, sn, tag)
     end
 end
 
-function node(abaco::Context, sn, domain)
-    # if domain is unknow then fallback to the default settings
-    ##settings = get(abaco.cfg, domain, abaco.cfg[DEFAULT_TYPE])
+function node(abaco::Context, sn, tag)
+    # if tag is unknow then fallback to the default settings
+    ##settings = get(abaco.cfg, tag, abaco.cfg[DEFAULT_TYPE])
     if abaco.interval == -1
-        el = Element(sn, domain)
+        el = Node(sn, tag)
     else
-        el = Element(sn, domain, abaco.ages)
+        el = Node(sn, tag, abaco.ages)
     end
 
-    if haskey(abaco.cfg, domain)
-            for formula in values(abaco.cfg[domain].formula)
+    if haskey(abaco.cfg, tag)
+            for formula in values(abaco.cfg[tag].formula)
                 for snap in values(el.snap)
                     snap.outputs[formula.output] = FormulaState(false, formula.output)
                 end
             end
     end
 
-    abaco.element[sn] = el
+    abaco.node[sn] = el
     el
 end
 
 
-function node(abaco::Context, target, sn, domain)
-    elem = node(abaco, sn, domain)
+function node(abaco::Context, target, sn, tag)
+    elem = node(abaco, sn, tag)
 
     if haskey(abaco.origins, target.sn)
         push!(abaco.origins[target.sn], elem)
     else
         abaco.origins[target.sn] = Set([elem])
     end
-    abaco.target[sn] = (domain, target.sn)
+    abaco.target[sn] = (tag, target.sn)
     return elem
 end
 
 function delete_node(abaco, sn)
-    delete!(abaco.element, sn)
+    delete!(abaco.node, sn)
 end

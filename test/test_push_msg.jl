@@ -70,7 +70,7 @@ ingest!(abaco, Dict(
                 "w" => nothing,
             ))
 
-@debug "[$sn]: $(abaco.element[sn])"
+@debug "[$sn]: $(abaco.node[sn])"
 
 result = get_values(abaco, sn, "r")
 @debug "get_values(r) = $result"
