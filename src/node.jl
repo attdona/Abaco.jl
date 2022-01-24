@@ -1,11 +1,3 @@
-function node(abaco::Context, sn, tag, parent)
-    if parent !== ""
-        container = abaco.node[parent]
-        node(abaco, container, sn, tag)
-    else
-        node(abaco, sn, tag)
-    end
-end
 
 function node(abaco::Context, sn, tag)
     # if tag is unknow then fallback to the default settings
@@ -28,8 +20,16 @@ function node(abaco::Context, sn, tag)
     el
 end
 
+function node(abaco::Context, sn::String, tag::String, parent::String)
+    if parent !== ""
+        container = abaco.node[parent]
+        node(abaco, container, sn, tag)
+    else
+        node(abaco, sn, tag)
+    end
+end
 
-function node(abaco::Context, target, sn, tag)
+function node(abaco::Context, target::Node, sn::String, tag::String)
     elem = node(abaco, sn, tag)
 
     if haskey(abaco.origins, target.sn)
