@@ -2,7 +2,7 @@ using Abaco
 using JSON3
 using Test
 
-sn = "Ambrusogn"
+en = "Ambrusogn"
 ts = nowts()
 x = 2
 y = 2
@@ -12,9 +12,9 @@ very_long_variable = 5
 expected_triggers = 1
 actual_triggers = 0
 
-function onresult(ts, sn, name, value, inputs)
+function onresult(ts, en, name, value, inputs)
     global actual_triggers
-    @debug "age [$ts]: scope: [$sn] $name = $value"
+    @debug "age [$ts]: scope: [$en] $name = $value"
     @test value == (x + y * very_long_variable)/z
     actual_triggers += 1
 end
@@ -25,15 +25,15 @@ abaco = abaco_init(onresult)
 f = formula(abaco, "(x + y * very_long_variable)/z")
 
 # The values may be received one at time or in a batch
-# The only mandatory fields are sn and ts
+# The only mandatory fields are en and ts
 # ts relate values coming in different messages: the partecipants in a formula 
-# evaluation step have values marked with the same ts and the same sn. 
+# evaluation step have values marked with the same ts and the same en. 
 # mnemonics:
-# *sn -> scope name
+# *en -> scope name
 # *ts -> timestamp
 
 msg = Dict(
-    "sn" => "element_under_test",
+    "en" => "element_under_test",
     "ts" => ts,
     "x" => 2,
     "y" => 2,
