@@ -13,7 +13,6 @@ using SafeTestsets
         @time @safetestset "too_old" begin include("test_too_old.jl") end
         @time @safetestset "push_msg" begin include("test_push_msg.jl") end
         @time @safetestset "push_ages" begin include("test_push_ages.jl") end
-        @time @safetestset "json" begin include("test_json.jl") end
         @time @safetestset "multiverse" begin include("test_multiverse.jl") end
         @time @safetestset "operators" begin include("test_operators.jl") end
         @time @safetestset "invalid_formula" begin include("test_invalid_formula.jl") end
