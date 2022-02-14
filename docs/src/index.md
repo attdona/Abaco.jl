@@ -54,7 +54,7 @@ ingest(abaco, ts, node, "y", 10)
 
 # Finally the node AG101 sends the y value calculated at timestamp 0.
 # At this instant the formulas that depends on x and y are computable
-# for the element AG101 at timestamp 0.
+# for the node AG101 at timestamp 0.
 ts = 0
 node = "AG101"
 ingest(abaco, ts, node, "y", 20)

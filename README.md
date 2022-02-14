@@ -60,7 +60,7 @@ add_value(abaco, ts, device, "y", 10)
 
 # the device AG101 sends the y value calculated at timestamp 0.
 # At this instant the formulas that depends on x and y are computable
-# for the element AG101 at timestamp 0.
+# for the node AG101 at timestamp 0.
 ts = 0
 device = "AG101"
 add_value(abaco, ts, device, "y", 20)
