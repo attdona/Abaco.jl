@@ -8,8 +8,8 @@ sn1 = "tn01"
 sn2 = "tn02"
 sn3 = "tn03"
 
-function onresult(ts, sn, name, value, inputs)
-    @debug "timestamp [$ts]: sn: [$sn] $name = $value"
+function onresult(ts, ne, name, value, inputs)
+    @debug "timestamp [$ts]: ne: [$ne] $name = $value"
 end
 
 abaco = abaco_init(onresult, interval=interval)
@@ -33,16 +33,16 @@ node(abaco, city, sn1, "sensor")
 node(abaco, city, sn2, "sensor")
 node(abaco, city, sn3, "sensor")
 
-current_footprint = get_collected(abaco, city.sn, "sensor.footprint")
+current_footprint = get_collected(abaco, city.ne, "sensor.footprint")
 @debug "initial carbon footprints: $current_footprint"
 
 ingest(abaco, ts, sn1, Dict("footprint" => 250.0))
 ingest(abaco, ts, sn2, Dict("footprint" => 700.0))
 
-current_footprint = get_collected(abaco, city.sn, "sensor.footprint", ts)
+current_footprint = get_collected(abaco, city.ne, "sensor.footprint", ts)
 @debug "current carbon footprint: $current_footprint"
 
-footprint_sum = sum_collected(abaco, city.sn, "sensor.footprint", ts)
+footprint_sum = sum_collected(abaco, city.ne, "sensor.footprint", ts)
 @debug "footprint sum: $footprint_sum"
 @test footprint_sum.contribs == 2
 @test footprint_sum.expected == 3
@@ -50,7 +50,7 @@ footprint_sum = sum_collected(abaco, city.sn, "sensor.footprint", ts)
 
 ingest(abaco, ts, sn3, Dict("footprint" => 1000.0))
 
-footprint_sum = sum_collected(abaco, city.sn, "sensor.footprint", ts)
+footprint_sum = sum_collected(abaco, city.ne, "sensor.footprint", ts)
 @debug "footprint sum: $footprint_sum"
 @test footprint_sum.contribs == 3
 @test footprint_sum.value == 1950

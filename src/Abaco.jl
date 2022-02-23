@@ -47,8 +47,8 @@ Example 1: defining `onresult` callback that uses of an handle object.
 # the handle object is a socket
 sock = connect(3001)
 
-function onresult(handle, ts, sn, formula_name, value, inputs)
-    # build a pkt message from ts, sn, ...
+function onresult(handle, ts, ne, formula_name, value, inputs)
+    # build a pkt message from ts, ne, ...
     pkt = ...
     write(sock, pkt)
 end
@@ -59,8 +59,8 @@ Example 2: defining `onresult` callback that doesn't use an handle object.
 ```julia
 abaco = abaco_init(onresult, handle=sock)
 
-function onresult(ts, sn, formula_name, value, inputs)
-    @info "[\$ts][\$sn] function \$fname=\$value"
+function onresult(ts, ne, formula_name, value, inputs)
+    @info "[\$ts][\$ne] function \$fname=\$value"
 end
 
 abaco = abaco_init(onresult)
@@ -78,8 +78,8 @@ function abaco_init(onresult;
     Context(interval, ages, Dict(DEFAULT_TYPE=>cfg), onresult)
 end
 
-abaco_init() = abaco_init() do ts, sn, name, value, inputs
-    println("$name(ts:$ts, sn:$sn) = $value")
+abaco_init() = abaco_init() do ts, ne, name, value, inputs
+    println("$name(ts:$ts, ne:$ne) = $value")
 end
 
 function oncomplete(onresult, abaco::Context)

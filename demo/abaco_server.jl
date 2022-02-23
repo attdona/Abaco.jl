@@ -46,9 +46,9 @@ function abacod(ctx, channel)
     try
         time_window = parse(Int, get(ENV, "ABACO_INTERVAL", "-1"))
 
-        abaco = abaco_init(handle=ctx, interval=time_window, emitone=false) do ctx, ts, sn, name, value, inputs
+        abaco = abaco_init(handle=ctx, interval=time_window, emitone=false) do ctx, ts, ne, name, value, inputs
             msg = JSON3.write(Dict(
-                                "en" => sn,
+                                "ne" => ne,
                                 "ts" => ts, 
                                 name => value))
             for sock in ctx.subscribers

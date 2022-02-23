@@ -6,7 +6,7 @@ function parse_commandline(args)
     s = ArgParseSettings()
 
     @add_arg_table! s begin
-        "--en"
+        "--ne"
             help = "entity name"
         "--var"
             help = "variable name"
@@ -27,7 +27,7 @@ function script_main()
     parsed_args = parse_commandline(ARGS)
     sock = connect(3333)
     write(sock, JSON3.write(Dict(
-            "sn" => parsed_args["en"],
+            "ne" => parsed_args["ne"],
             "ts" => parsed_args["ts"],
             parsed_args["var"] => parsed_args["val"],
         )) * "\n")

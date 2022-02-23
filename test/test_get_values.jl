@@ -6,7 +6,7 @@ function onresult(ts, target_en, target_name, value, inputs)
     @debug "age [$ts]: scope: [$target_en] $target_name = $value"
     @debug "inputs: $inputs"
     
-    @test target_en == en
+    @test target_en == ne
 end
 
 
@@ -17,46 +17,46 @@ interval = 5
 ages = 5
 abaco = abaco_init(onresult, interval=interval, ages=ages)
 
-en = "sansone"
+ne = "sansone"
 
-result = get_values(abaco, en, "x")
+result = get_values(abaco, ne, "x")
 @debug "init values(r) = $result"
 @test result == OrderedDict()
 
-result = last_value(abaco, en, "not_existent")
+result = last_value(abaco, ne, "not_existent")
 @debug "last_value(not_existent) = $result"
 @test result === nothing
 
 ingest!(abaco, Dict(
-                "en" => en,
+                "ne" => ne,
                 "ts" => ts,
                 "x" => 100,
             ))
 
-result = last_value(abaco, en, "not_existent")
+result = last_value(abaco, ne, "not_existent")
 @debug "last_value(not_existent) = $result"
             
 @test result === missing
 
-result = last_value(abaco, en, "x")
+result = last_value(abaco, ne, "x")
 @debug "last_value(x) = $result"
             
 @test result === 100.0
 
 for i = 0:5:40
     ingest!(abaco, Dict(
-        "en" => en,
+        "ne" => ne,
         "ts" => ts+i,
         "x" => i,
     ))
-    last_pt = last_point(abaco, en, "x")
+    last_pt = last_point(abaco, ne, "x")
     @debug "last_point(x) = $last_pt"
                 
     @test last_pt == (span(ts+i, interval), float(i))
     
 end
 
-result = get_values(abaco, en, "x")
+result = get_values(abaco, ne, "x")
 @debug "sequence(r) = $result"
 @debug "values(r) = $(values(result))"
 

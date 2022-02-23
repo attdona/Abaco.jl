@@ -11,20 +11,20 @@ val3 = 102
 expected_triggers = 3
 actual_triggers = 0
 
-#function onresult(ts, sn, name, value, inputs)
+#function onresult(ts, ne, name, value, inputs)
 #    global actual_triggers
-#    @debug "timestamp [$ts]: sn: [$sn] $name = $value"
+#    @debug "timestamp [$ts]: ne: [$ne] $name = $value"
 #    if name === "offset_footprint"
 #        @test value == x + val1 + val2 + val3
 #    end
 #    actual_triggers += 1
 #end
 
-function onresult(timestamp, sn, name, value::Abaco.PValue, inputs)
+function onresult(timestamp, ne, name, value::Abaco.PValue, inputs)
     global actual_triggers
-    @debug "progressive timestamp [$ts]: sn: [$sn] $name = $value"
+    @debug "progressive timestamp [$ts]: ne: [$ne] $name = $value"
     if value.contribs == 1
-        @test sn == "italy"
+        @test ne == "italy"
         @test timestamp == span(ts, interval)
         @test value.value == val1
     elseif value.contribs == 2
@@ -55,17 +55,17 @@ padova = node(abaco, veneto, "padova", "city")
 rovereto = node(abaco, trentino, "rovereto", "city")
 pergine = node(abaco, trentino, "pergine", "city")
 
-#@info "TEST: veneto origins: $(abaco.origins[veneto.sn])"
+#@info "TEST: veneto origins: $(abaco.origins[veneto.ne])"
 
-#current_footprint = get_collected(abaco, italy.sn, "region.city.footprint")
+#current_footprint = get_collected(abaco, italy.ne, "region.city.footprint")
 #@debug "initial carbon footprints: $current_footprint"
 
-ingest(abaco, ts, belluno.sn, Dict("footprint" => val1))
+ingest(abaco, ts, belluno.ne, Dict("footprint" => val1))
 
-ingest(abaco, ts, padova.sn, Dict("footprint" => val2))
-ingest(abaco, ts, rovereto.sn, Dict("footprint" => val3))
+ingest(abaco, ts, padova.ne, Dict("footprint" => val2))
+ingest(abaco, ts, rovereto.ne, Dict("footprint" => val3))
 
-#current_footprint = get_collected(abaco, italy.sn, "region.city.footprint", ts)
+#current_footprint = get_collected(abaco, italy.ne, "region.city.footprint", ts)
 #@debug "current carbon footprint: $current_footprint"
 
 @test actual_triggers === expected_triggers

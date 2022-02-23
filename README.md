@@ -29,8 +29,8 @@ using Abaco
 # input values with timestamp ts up to 4 (ages) contiguous time intervals.
 # When a formula is evaluated because all inputs variables are known traces
 # an info record.
-abaco = abaco_init(interval=60, ages=4) do ts, sn, fname, value, inputs
-    @info "[$ts][$sn] function $fname=$value"
+abaco = abaco_init(interval=60, ages=4) do ts, ne, fname, value, inputs
+    @info "[$ts][$ne] function $fname=$value"
 end
 
 # Add desired outputs in terms of inputs variables x, y, z, v, w

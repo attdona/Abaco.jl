@@ -1,11 +1,11 @@
 
-function node(abaco::Context, sn, tag)
+function node(abaco::Context, ne, tag)
     # if tag is unknow then fallback to the default settings
     ##settings = get(abaco.cfg, tag, abaco.cfg[DEFAULT_TYPE])
     if abaco.interval == -1
-        el = Node(sn, tag)
+        el = Node(ne, tag)
     else
-        el = Node(sn, tag, abaco.ages)
+        el = Node(ne, tag, abaco.ages)
     end
 
     if haskey(abaco.cfg, tag)
@@ -16,31 +16,31 @@ function node(abaco::Context, sn, tag)
             end
     end
 
-    abaco.node[sn] = el
+    abaco.node[ne] = el
     el
 end
 
-function node(abaco::Context, sn::String, tag::String, parent::String)
+function node(abaco::Context, ne::String, tag::String, parent::String)
     if parent !== ""
         container = abaco.node[parent]
-        node(abaco, container, sn, tag)
+        node(abaco, container, ne, tag)
     else
-        node(abaco, sn, tag)
+        node(abaco, ne, tag)
     end
 end
 
-function node(abaco::Context, target::Node, sn::String, tag::String)
-    elem = node(abaco, sn, tag)
+function node(abaco::Context, target::Node, ne::String, tag::String)
+    elem = node(abaco, ne, tag)
 
-    if haskey(abaco.origins, target.sn)
-        push!(abaco.origins[target.sn], elem)
+    if haskey(abaco.origins, target.ne)
+        push!(abaco.origins[target.ne], elem)
     else
-        abaco.origins[target.sn] = Set([elem])
+        abaco.origins[target.ne] = Set([elem])
     end
-    abaco.target[sn] = (tag, target.sn)
+    abaco.target[ne] = (tag, target.ne)
     return elem
 end
 
-function delete_node(abaco, sn)
-    delete!(abaco.node, sn)
+function delete_node(abaco, ne)
+    delete!(abaco.node, ne)
 end

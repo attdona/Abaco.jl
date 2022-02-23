@@ -119,25 +119,25 @@ julia> ingest(abaco,              # abaco instance
 
 Values may also be ingested using a `Dict{String,Any}` object with the following rule:
 
-`en` and `ts` are reserved dictionary keyword for node name and timestamp whereas the others entries are metrics values.
+`ne` and `ts` are reserved dictionary keyword for node name and timestamp whereas the others entries are metrics values.
 
 ```julia
 # A record with a single metric
 julia> x_value = Dict(
-    "en" => "my_network_element",
+    "ne" => "my_network_element",
     "ts" => 1642605647,
     "x" => 1.5    # metric name => metric value
 )
 
 julia> y_value = Dict(
-    "en" => "my_network_element",
+    "ne" => "my_network_element",
     "ts" => 1642605647,
     "y" => 8.5
 )
 
 # A record with a batch of metrics:
 julia> xyz_values = Dict(
-    "en" => "my_network_element",
+    "ne" => "my_network_element",
     "ts" => 1642605647,
     "x" => 1.5,
     "y" => 25,
@@ -161,7 +161,7 @@ The default callback print the result summary to the console.
 julia> ingest(abaco, x_metric)
 
 julia> ingest(abaco, y_metric)
-my_formula(ts:1642605647, sn:my_network_element) = 10.0
+my_formula(ts:1642605647, ne:my_network_element) = 10.0
 ```
 
 A node may have a parent node: parent-child relationships and tags are powerful tools that enables aggregation and statistical functions:

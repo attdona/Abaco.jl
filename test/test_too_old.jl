@@ -18,9 +18,9 @@ values = Dict(
     "y" => 4.0
 )
     
-function onresult(ts, sn, name, value, inputs)
+function onresult(ts, ne, name, value, inputs)
     global actual_triggers
-    @info "age [$ts]: scope: [$sn] $name = $value"
+    @info "age [$ts]: scope: [$ne] $name = $value"
     actual_triggers += 1
 end
     

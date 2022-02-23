@@ -19,11 +19,11 @@ values = Dict(
     "z" => 8.0
     )
     
-function onresult(ts, sn, name, value, inputs)
+function onresult(ts, ne, name, value, inputs)
     global actual_triggers
-    @debug "age [$ts]: scope: [$sn] $name = $value"
+    @debug "age [$ts]: scope: [$ne] $name = $value"
     @test ts == metric_ts
-    @test sn == metric_sn
+    @test ne == metric_sn
     @test value == 14.0
     actual_triggers += 1
 end

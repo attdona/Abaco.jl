@@ -10,8 +10,8 @@ mo = "Cristallo"
 interval = 1
 ages = 4
 
-function onresult(ts, sn, name, value, inputs)
-    @info "age [$ts]: scope: [$sn] $name = $value"
+function onresult(ts, ne, name, value, inputs)
+    @info "age [$ts]: scope: [$ne] $name = $value"
     @test 1 == 0 # onresult should not be invoked
 end
     

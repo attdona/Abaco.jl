@@ -19,9 +19,9 @@ values = Dict(
 
 df = readdlm(joinpath(datadir,"formulas.csv"), ';', header=true)
 
-function onresult(ts, sn, name, value, inputs)
+function onresult(ts, ne, name, value, inputs)
     global actual_triggers
-    @debug "age [$ts]: sn: [$sn] $name = $value"
+    @debug "age [$ts]: ne: [$ne] $name = $value"
     actual_triggers += 1
 end
 
@@ -34,7 +34,7 @@ add_formulas(abaco, df[1])
 
 city = node(abaco, "milano", "hub")
 
-#sensor = node(abaco, sn, "sensor")
+#sensor = node(abaco, ne, "sensor")
 node(abaco, city, sn1, "sensor")
 node(abaco, city, sn2, "sensor")
 

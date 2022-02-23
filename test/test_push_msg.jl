@@ -18,7 +18,7 @@ function onresult(ts, target_sn, target_name, value, inputs)
     @debug "age [$ts]: scope: [$target_sn] $target_name = $value"
     @debug "inputs: $inputs"
     
-    @test target_sn == en
+    @test target_sn == ne
     if target_name === "r"
         @test value == r
     end
@@ -38,7 +38,7 @@ interval = 5
 ages = 4
 abaco = abaco_init(onresult, interval=interval, ages=ages)
 
-en = "Mulaz"
+ne = "Mulaz"
 
 # add a formula
 formula(abaco, "r = (x + y) / exp(z)")
@@ -46,33 +46,33 @@ formula(abaco, "w = (x + y) / z")
 formula(abaco, "sum = x + y + z + t")
 
 ingest!(abaco, Dict(
-                "en" => en,
+                "ne" => ne,
                 "ts" => ts,
                 "x" => x,
             ))
 
 ingest!(abaco, Dict(
-                "en" => en,
+                "ne" => ne,
                 "ts" => ts+2,
                 "y" => y,
                 "z" => z
             ))
 
 ingest!(abaco, Dict(
-                "en" => en,
+                "ne" => ne,
                 "ts" => ts+2,
                 "t" => t,
             ))
 
 ingest!(abaco, Dict(
-                "en" => en,
+                "ne" => ne,
                 "ts" => ts+2,
                 "w" => nothing,
             ))
 
-@debug "[$en]: $(abaco.node[en])"
+@debug "[$ne]: $(abaco.node[ne])"
 
-result = get_values(abaco, en, "r")
+result = get_values(abaco, ne, "r")
 @debug "get_values(r) = $result"
 
 @test actual_triggers === expected_triggers

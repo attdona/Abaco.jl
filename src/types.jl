@@ -55,7 +55,7 @@ Formula evaluation failure.
 for example for a wrong numbers of method args:
     
     formula(abaco, "div(x,y,z")
-    ingest(abaco, ts, sn, Dict("x"=>10, "y"=>1, "z"=1))
+    ingest(abaco, ts, ne, Dict("x"=>10, "y"=>1, "z"=1))
 
 """
 struct EvalError <: AbacoError
@@ -118,12 +118,12 @@ end
 
 
 mutable struct Node
-    sn::String
+    ne::String
     tag::String
     snap::Dict{Int, Snap}
     currsnap::Int
-    Node(sn, tag) = new(sn, tag, Dict(1 => Snap(Dict())), 1)
-    Node(sn, tag, ages) = new(sn, tag, Dict(i => Snap(Dict()) for i in 1:ages), 1)
+    Node(ne, tag) = new(ne, tag, Dict(1 => Snap(Dict())), 1)
+    Node(ne, tag, ages) = new(ne, tag, Dict(i => Snap(Dict()) for i in 1:ages), 1)
 end
 
 
@@ -134,9 +134,9 @@ mutable struct Context
     interval::Int64
     ages::Int64
     cfg::Dict{String, SnapsSetting}  # tag => snaps setting
-    node::Dict{String, Node} # sn => node
-    origins::Dict{String, Set{Node}} # sys_2 => [sn_21, sn_22]
-    target::Dict{String, Tuple{String, String}} # sn_21 => (sn_21 tag, sys_2)
+    node::Dict{String, Node} # ne => node
+    origins::Dict{String, Set{Node}} # sys_2 => [ne_21, ne_22]
+    target::Dict{String, Tuple{String, String}} # ne_21 => (ne_21 tag, sys_2)
     oncompletedefault::Union{Function, Nothing}
     Context(interval, ages, oncomplete=nothing) = begin
         new(interval, ages, Dict(), Dict(), Dict(), Dict(), oncomplete)

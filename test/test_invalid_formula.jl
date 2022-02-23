@@ -11,11 +11,11 @@ metric_sn = "Civetta"
 expected_triggers = 0
 actual_triggers = 0
 
-abaco = abaco_init(interval=window) do ts, sn, name, value, inputs 
+abaco = abaco_init(interval=window) do ts, ne, name, value, inputs 
     global actual_triggers
-    @info "[identity] age [$ts]: scope: [$sn] $name = $value"
+    @info "[identity] age [$ts]: scope: [$ne] $name = $value"
     @test ts == metric_ts
-    @test sn == metric_sn
+    @test ne == metric_sn
     @test value == 100.0
     actual_triggers += 1
 end

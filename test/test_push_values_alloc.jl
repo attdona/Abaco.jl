@@ -2,11 +2,11 @@ using Abaco
 using JSON3
 using BenchmarkTools
 
-function nop(s, sn, name, value, inputs)
+function nop(s, ne, name, value, inputs)
 end
 
-function onresult(ts, sn, name, value, inputs)
-    @info "age [$ts]: scope: [$sn] $name = $value"
+function onresult(ts, ne, name, value, inputs)
+    @info "age [$ts]: scope: [$ne] $name = $value"
 end
 
 interval = 5

@@ -3,12 +3,12 @@ using Test
 
 interval=10
 
-function onresult(ts, sn, name, value, inputs)
-    @debug "timestamp [$ts]: sn: [$sn] $name = $value"
+function onresult(ts, ne, name, value, inputs)
+    @debug "timestamp [$ts]: ne: [$ne] $name = $value"
 end
 
-function onresult(timestamp, sn, name, value::Abaco.PValue, inputs)
-    @debug "progressive timestamp [$ts]: sn: [$sn] $name = $value"
+function onresult(timestamp, ne, name, value::Abaco.PValue, inputs)
+    @debug "progressive timestamp [$ts]: ne: [$ne] $name = $value"
 end
 
 abaco = abaco_init(onresult, interval=interval)
@@ -32,7 +32,7 @@ node(abaco, trentino, "mori", "city")
 node(abaco, trentino, "bondone", "mountain")
 
 nodes = split("region.city.footprint", ".")[1:end-1]
-count = Abaco.deep_count(abaco, italy.sn, nodes)
+count = Abaco.deep_count(abaco, italy.ne, nodes)
 @test count == 5 
 
 

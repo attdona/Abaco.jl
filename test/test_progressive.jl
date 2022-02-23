@@ -16,21 +16,21 @@ x = 10
 expected_triggers = 12
 actual_triggers = 0
 
-function onresult(ts, sn, name, value, inputs)
+function onresult(ts, ne, name, value, inputs)
     global actual_triggers
-    @debug "timestamp [$ts]: sn: [$sn] $name = $value"
+    @debug "timestamp [$ts]: ne: [$ne] $name = $value"
     if name === "offset_footprint"
         @test value == x + val1 + val2 + val3
     end
     actual_triggers += 1
 end
 
-function onresult(timestamp, sn, name, value::Abaco.PValue, inputs)
+function onresult(timestamp, ne, name, value::Abaco.PValue, inputs)
     global actual_triggers
-    @debug "progressive timestamp [$ts]: sn: [$sn] $name = $value"
+    @debug "progressive timestamp [$ts]: ne: [$ne] $name = $value"
     if name === "footprint_sum"
         if value.contribs == 1
-            @test sn == "trento"
+            @test ne == "trento"
             @test timestamp == span(ts, interval)
             @test value.value == val1
         elseif value.contribs == 2
@@ -41,7 +41,7 @@ function onresult(timestamp, sn, name, value::Abaco.PValue, inputs)
     end
     if name === "footprint_mean"
         if value.contribs == 1
-            @test sn == "trento"
+            @test ne == "trento"
             @test timestamp == span(ts, interval)
             @test value.value == val1
         elseif value.contribs == 2
@@ -72,16 +72,16 @@ node(abaco, city, sn1, "sensor")
 node(abaco, city, sn2, "sensor")
 node(abaco, city, sn3, "sensor")
 
-current_footprint = get_collected(abaco, city.sn, "sensor.footprint")
+current_footprint = get_collected(abaco, city.ne, "sensor.footprint")
 @debug "initial carbon footprints: $current_footprint"
 
 ingest(abaco, ts, sn1, Dict("footprint" => val1))
 ingest(abaco, ts, sn2, Dict("footprint" => val2))
 
-current_footprint = get_collected(abaco, city.sn, "sensor.footprint", ts)
+current_footprint = get_collected(abaco, city.ne, "sensor.footprint", ts)
 @debug "current carbon footprint: $current_footprint"
 
-footprint_sum = sum_collected(abaco, city.sn, "sensor.footprint", ts)
+footprint_sum = sum_collected(abaco, city.ne, "sensor.footprint", ts)
 @debug "footprint sum: $footprint_sum"
 @test footprint_sum.contribs == 2
 @test footprint_sum.expected == 3
@@ -89,12 +89,12 @@ footprint_sum = sum_collected(abaco, city.sn, "sensor.footprint", ts)
 
 ingest(abaco, ts, sn3, Dict("footprint" => val3))
 
-footprint_sum = sum_collected(abaco, city.sn, "sensor.footprint", ts)
+footprint_sum = sum_collected(abaco, city.ne, "sensor.footprint", ts)
 @debug "footprint sum: $footprint_sum"
 @test footprint_sum.contribs == 3
 @test footprint_sum.value == val1 + val2 + val3
 
-ingest(abaco, ts, city.sn, Dict(
+ingest(abaco, ts, city.ne, Dict(
     "x" => x,
     "y" => 20
 ))
