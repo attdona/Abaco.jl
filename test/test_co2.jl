@@ -8,8 +8,22 @@ sn1 = "tn01"
 sn2 = "tn02"
 sn3 = "tn03"
 
+count = 0
 function onresult(ts, ne, name, value, inputs)
+    global count
+    count += 1
     @debug "timestamp [$ts]: ne: [$ne] $name = $value"
+    if count == 1
+        @test value.contribs == 1
+        @test value.value == 250
+    elseif count == 2
+        @test value.contribs == 2
+        @test value.value == 950
+        @test value.expected == 3
+    elseif count == 3
+        @test value.contribs == 3
+        @test value.value == 1950
+    end
 end
 
 abaco = abaco_init(onresult, interval=interval)
@@ -25,7 +39,7 @@ setup_settings(abaco, "hub", oncomplete=onresult)
 #df = readdlm(joinpath(datadir,"formulas_co2.csv"), ';', header=true)
 #add_formulas(abaco, df)
 
-formula(abaco, "hub", "total_footprint", "sum(sensor.footprint)")
+formula(abaco, "total_footprint", "sum(sensor.footprint)", "hub")
 
 city = node(abaco, "trento", "hub")
 
@@ -54,3 +68,5 @@ footprint_sum = sum_collected(abaco, city.ne, "sensor.footprint", ts)
 @debug "footprint sum: $footprint_sum"
 @test footprint_sum.contribs == 3
 @test footprint_sum.value == 1950
+
+@test count == 3
