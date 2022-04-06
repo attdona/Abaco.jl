@@ -122,10 +122,12 @@ Adds the input variables include in the dictionary `values`.
 """
 function ingest(abaco, ts, ne, values)
     snap = getsnap(abaco, ts, ne)
-    for (var, val) in values
-        snap_add(snap, ne, var, val)
+    if snap !== nothing
+        for (var, val) in values
+            snap_add(snap, ne, var, val)
+        end
+        trigger_formulas(abaco, snap, ne, keys(values))
     end
-    trigger_formulas(abaco, snap, ne, keys(values))
 end
 
 function ingest(abaco, payload::Dict{String, Any})
@@ -133,10 +135,12 @@ function ingest(abaco, payload::Dict{String, Any})
     ne = payload["ne"]
     snap = getsnap(abaco, ts, ne)
     vars = [var for var in keys(payload) if !(var in ["ne", "ts"])]
-    for var in vars
-        snap_add(snap, ne, var, payload[var])
+    if snap !== nothing
+        for var in vars
+            snap_add(snap, ne, var, payload[var])
+        end
+        trigger_formulas(abaco, snap, ne, vars)
     end
-    trigger_formulas(abaco, snap, ne, vars)
 end
 
 
@@ -261,7 +265,6 @@ function getsnap(abaco::Context, ts, ne)
             fstate.done = false
         end
     end
-
     if ropts < snap.ts
         return nothing
     end
