@@ -12,7 +12,7 @@ expected_triggers = 10
 actual_triggers = 0
 
 #1
-abaco = abaco_init(interval=window) do ts, ne, name, value, inputs
+abaco = abaco_init(interval=window, ages=10) do ts, ne, name, value, inputs
     global actual_triggers
     @debug "[identity] age [$ts]: scope: [$ne] $name = $value"
     @test ts == metric_ts

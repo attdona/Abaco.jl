@@ -37,7 +37,7 @@ end
 # Call the function named in args[1]
 function find_symbol(::Val{:call}, args, formula::Formula, level)
     op = args[1]
-    if level === 2 && (hasproperty(Statistics, op) || op in [:sum])
+    if hasproperty(Statistics, op) || op in [:sum]
         # A progressive has a statistic operator at level 1
         formula.progressive = true
     end

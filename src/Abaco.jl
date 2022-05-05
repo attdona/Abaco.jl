@@ -10,7 +10,6 @@ include("context.jl")
 include("extractor.jl")
 include("formula.jl")
 include("node.jl")
-include("progressive.jl")
 include("poll.jl")
 include("time.jl")
 
@@ -71,7 +70,7 @@ function abaco_init(onresult;
                     interval::Int=-1,
                     ages::Int=1,
                     emitone::Bool=false)::Context
-                    DEBUG = get(ENV, "ABACO_DEBUG", "0")
+    DEBUG = get(ENV, "ABACO_DEBUG", "0")
     logging(debug = DEBUG=="0" ? [] : [@__MODULE__, Main])
     @debug "resetting abaco ..."
     cfg = SnapsSetting(handle, emitone, onresult)

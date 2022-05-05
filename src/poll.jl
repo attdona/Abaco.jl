@@ -113,7 +113,7 @@ function poll_formulas(abaco, snap, ne, vars)
             # propagate to target 
             if haskey(abaco.target, ne)
                 #@info "propagate $ne --> $formula_name"
-                #propagate(abaco, snap, ne, formula_name)
+                propagate(abaco, snap, ne, formula_name)
             end
 
             if cfg.oncomplete !== nothing
@@ -149,18 +149,16 @@ end
 #
 function poll(setting::SnapsSetting, formula_state::FormulaState, vals::Dict)
     formula = setting.formula[formula_state.f]
-    if formula.progressive
-        poll_progressive(setting, formula, formula_state, vals)
-    else
-        poll_simple(setting, formula, formula_state, vals)
-    end
+
+    poll_simple(setting, formula, formula_state, vals)
 end
 
 
 function poll_simple(setting::SnapsSetting, formula::Formula, formula_state::FormulaState, vals::Dict)
     # Step 1: decide if the formula may be evaluated: all variables are collected
     for v in formula.inputs
-        if !(haskey(vals, v) && isready(vals[v]))
+        #if !(haskey(vals, v) && isready(vals[v]))
+        if !(haskey(vals, v))
             return nothing
         end
     end
@@ -176,14 +174,3 @@ function poll_simple(setting::SnapsSetting, formula::Formula, formula_state::For
     return nothing
 end
 
-function poll_progressive(setting::SnapsSetting, formula::Formula, formula_state::FormulaState, vals::Dict)
-    # Step 1: decide if the formula may be evaluated: all variables are collected
-    for v in formula.inputs
-        if !(haskey(vals, v))
-            return nothing
-        end
-    end
-    
-    # Step 2: evaluate the formula
-    eval_progressive(formula, vals)
-end

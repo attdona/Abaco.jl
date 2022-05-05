@@ -1,3 +1,30 @@
+using Statistics
+import Base.+, Base.-, Base.*, Base./
+
++(x::PValue, y::PValue) = PValue(x.contribs+y.contribs,
+                                 x.expected+y.expected,
+                                 x.value+y.value,
+                                 max(x.updated,y.updated))
+
+-(x::PValue, y::PValue) = PValue(x.contribs+y.contribs,
+                                 x.expected+y.expected,
+                                 x.value-y.value,
+                                 max(x.updated,y.updated))
+
+
+
+*(x::PValue, y::PValue) = PValue(x.contribs+y.contribs,
+                                 x.expected+y.expected,
+                                 x.value*y.value,
+                                 max(x.updated,y.updated))
+
+
+/(x::PValue, y::PValue) = PValue(x.contribs+y.contribs,
+                                 x.expected+y.expected,
+                                 x.value/y.value,
+                                 max(x.updated,y.updated))
+
+
 """
 
 """
@@ -142,7 +169,6 @@ end
 # 
 # In case of error throws [`Abaco.EvalError`](@ref).
 #
-#function eval(formula::Formula, map::Dict{String,SValue})
 function eval(formula::Formula, map::Dict)
     try
         return advance(formula.expr, map)
@@ -162,12 +188,6 @@ function advance(s::Symbol, map::Dict)
     end
 end    
 
-#function advance(::Val{:.}, map::Dict)
-#    qn = args[2].value
-#    varname = "$(args[1]).$qn"
-#    return map[var].value
-#end
-
 function advance(x::Number, map::Dict)
     return x
 end    
@@ -178,26 +198,6 @@ end
 
 function advance(::Val{:call}, args, map::Dict)
     return advance(Val(args[1]), args[2:end], map)
-end
-
-function advance(::Val{:sum}, args, map::Dict)
-    node = args[1]
-    if isa(node, Symbol)
-        # a plain symbol like x
-        var = String(node)
-    else
-        # a dotted variable name like entity.counter
-        var = "$(node.args[1]).$(node.args[2].value)"
-    end
-    if haskey(map, var)
-        if length(map[var].value) == map[var].contribs
-            return sum(map[var].value)
-        else
-            return NaN
-        end
-    else
-        throw(UndefVarError(var))
-    end
 end
 
 function advance(::Val{:ref}, args, map::Dict)
@@ -219,7 +219,7 @@ getsymbol(::Val{x}) where x = x
 
 function advance(fsym::Val, args, map::Dict)
     sym = getsymbol(fsym)
-    if hasproperty(Statistics, sym)
+    if hasproperty(Statistics, sym) || sym === :sum
         var = string(args[1])
         if haskey(map, var)
             return PValue(length(map[var].value),
@@ -232,7 +232,5 @@ function advance(fsym::Val, args, map::Dict)
     else
         return eval(sym)([advance(arg, map) for arg in args]...)
     end
-
-    #return eval(sym)([advance(arg, map) for arg in args]...)
 end   
 
