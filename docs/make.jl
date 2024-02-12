@@ -6,7 +6,6 @@ DocMeta.setdocmeta!(Abaco, :DocTestSetup, :(using Abaco); recursive=true)
 makedocs(;
     modules=[Abaco],
     authors="Attilio <attilio.dona@telecomitalia.it> and contributors",
-    repo="https://github.com/attdona/Abaco.jl/blob/{commit}{path}#{line}",
     sitename="Abaco.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
@@ -20,5 +19,5 @@ makedocs(;
 
 deploydocs(;
     repo="github.com/attdona/Abaco.jl",
-    devbranch = "main"
+    devbranch="main"
 )
