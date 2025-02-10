@@ -35,7 +35,7 @@ function add_formulas(abaco, df)
         end
         setting = abaco.cfg[tag]
         f = formula(setting, name, expression)
-        
+
         # create a formula state for each node with el.tag==tag
         for el in values(abaco.node)
             if el.tag == tag
@@ -97,7 +97,7 @@ end
 function setup_formula(setting::SnapsSetting, formula::Formula)
     setting.formula[formula.output] = formula
 
-    # delete already present dependents, otherwise formula redefinition 
+    # delete already present dependents, otherwise formula redefinition
     # could not work as expected
     for dependent in values(setting.dependents)
         delete!(dependent, formula.output)
@@ -162,14 +162,14 @@ function dependents(abaco::Context, tag::String, vars)
 end
 
 #
-#     eval(formula::Formula, map::Dict{String,SValue})
-# 
+#     eval_formula(formula::Formula, map::Dict{String,SValue})
+#
 # Compute the `formula`, looking up the values of
 # inputs variables in `map`, and returns the result.
-# 
+#
 # In case of error throws [`Abaco.EvalError`](@ref).
 #
-function eval(formula::Formula, map::Dict)
+function eval_formula(formula::Formula, map::Dict)
     try
         return advance(formula.expr, map)
     catch ex
@@ -177,20 +177,20 @@ function eval(formula::Formula, map::Dict)
         # showerror(stdout, ex, catch_backtrace())
         throw(EvalError(string(formula.expr), ex))
     end
-end    
+end
 
 function advance(s::Symbol, map::Dict)
-    var = String(s) 
+    var = String(s)
     if haskey(map, var)
         return map[var].value
     else
         throw(UndefVarError(s))
     end
-end    
+end
 
 function advance(x::Number, map::Dict)
     return x
-end    
+end
 
 function advance(e::Expr, map::Dict)
     return advance(Val(e.head), e.args, map)
@@ -232,5 +232,4 @@ function advance(fsym::Val, args, map::Dict)
     else
         return eval(sym)([advance(arg, map) for arg in args]...)
     end
-end   
-
+end

@@ -27,7 +27,7 @@ function origins_vals(abaco::Context, ne, ts)
             ropts = span(ts, abaco.interval)
             snap = origin_elem.snap[index]
             # @debug "$ropts --> origin_elem [$(origin_elem.tag).$(origin_elem.ne)]: $snap"
-            
+
             for (var, val) in all_values(abaco, ts, origin_elem.ne, snap)
                 newvar = "$(origin_elem.tag).$var"
                 #@debug "[$ne] getting var $newvar"
@@ -67,7 +67,7 @@ function trigger_formulas(abaco, snap, ne, vars)
     poll_formulas(abaco, snap, ne, vars)
 
     for var in vars
-        # propagate input variables to target 
+        # propagate input variables to target
         if haskey(abaco.target, ne)
             propagate(abaco, snap, ne, var)
         end
@@ -81,11 +81,11 @@ function update_inputs(abaco, snap, ne, formula_name, result::PValue)
     trigger_formulas(abaco, snap, ne, formula_name)
 end
 
-# 
+#
 #     poll_formulas(abaco, snap, ne, vars)
-# 
+#
 # Check the completion status of all formulas that depends on `vars`.
-# 
+#
 function poll_formulas(abaco, snap, ne, vars)
     if snap === nothing
         return
@@ -102,7 +102,7 @@ function poll_formulas(abaco, snap, ne, vars)
         ovals = origins_vals(abaco, ne, snap.ts)
         allvals = merge(snap.vals, ovals)
         result = poll(cfg, fstate, allvals)
-        
+
         #@debug "[$ne] allvals: $allvals"
         @debug "[$ne] poll($formula_name) = $result"
         if result !== nothing
@@ -110,7 +110,7 @@ function poll_formulas(abaco, snap, ne, vars)
             #snap_add(snap, ne, formula_name, result)
             update_inputs(abaco, snap, ne, formula_name, result)
 
-            # propagate to target 
+            # propagate to target
             if haskey(abaco.target, ne)
                 #@info "propagate $ne --> $formula_name"
                 propagate(abaco, snap, ne, formula_name)
@@ -139,13 +139,13 @@ end
 function trigger_formulas(abaco, ::Nothing, ne, var, value)
 end
 
-# 
+#
 #     poll(abaco, formula_state::FormulaState, vals::Dict)
-# 
+#
 # Returns the formula value if the formula is computable.
-#     
+#
 # Returns `NaN` when some input variables are missing because
-# the formula cannot run to completion.  
+# the formula cannot run to completion.
 #
 function poll(setting::SnapsSetting, formula_state::FormulaState, vals::Dict)
     formula = setting.formula[formula_state.f]
@@ -162,15 +162,14 @@ function poll_simple(setting::SnapsSetting, formula::Formula, formula_state::For
             return nothing
         end
     end
-    
+
     # Step 2: evaluate the formula
     if !formula_state.done
         if setting.emitone
             formula_state.done = true
         end
-        result = eval(formula, vals)
+        result = eval_formula(formula, vals)
         return result
     end
     return nothing
 end
-
